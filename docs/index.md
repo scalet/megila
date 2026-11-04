@@ -21,6 +21,8 @@ uma página nova aparece no menu sem alteração manual do `mkdocs.yml`.
 
 - [Instalação](instalacao.md)
 - [Solução de problemas](troubleshooting.md)
+- [Configuração](configuracao.md)
+- [Perfis](perfis.md)
 - [Ambiente de desenvolvimento](dev/ambiente.md)
 - [Amostras de teste](dev/amostras.md)
 - [Decisões arquiteturais](adr/index.md)

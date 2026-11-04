@@ -144,6 +144,7 @@ pages are in the repository:
 - [Home](docs/index.md)
 - [Install](docs/instalacao.md)
 - [Troubleshooting](docs/troubleshooting.md)
+- [Configuration](docs/configuracao.md) (in Portuguese)
 - [Development environment](docs/dev/ambiente.md)
 - [Test samples](docs/dev/amostras.md)
 - [How to write the docs](docs/dev/docs.md)
@@ -169,7 +170,7 @@ Megila is free software under the [MIT license](LICENSE).
 Copyright (c) 2026 Renan Scalet.
 
 [SupoClip](https://github.com/FujiwaraChoki/supoclip) is published under
-the [GNU AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). It only
+the [GNU AGPL-3.0](https://web.archive.org/web/20261018192956/https://www.gnu.org/licenses/agpl-3.0.html). It only
 inspires the idea of short clips from a long video. No code, prompt,
 schema, test, or text from that repository is copied. Reading that code
 in order to reproduce its structure is out of bounds too: the
