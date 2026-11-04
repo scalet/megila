@@ -71,39 +71,42 @@ class Profile(BaseModel):
 
     video_prompt: str = Field(
         default="",
-        description="Instructions for the overlay plan. Not a secret.",
+        description="Instruções do plano de overlay. Não é segredo.",
     )
     summary_prompt: str = Field(
         default="",
-        description="Instructions the summary must follow, and nothing else.",
+        description="Instruções que o resumo deve seguir, e nada além delas.",
     )
     glossary: dict[str, str] = Field(
         default_factory=dict,
-        description="Term mapped to the preferred form.",
+        description="Termo mapeado para a forma preferida.",
     )
     language: str = Field(
         default="pt-BR",
-        description="BCP 47 tag fixed for jobs that use this profile.",
+        description="Etiqueta BCP 47 fixa para os jobs que usam este perfil.",
     )
     compress: bool = Field(
         default=False,
-        description="Request a smaller delivery file. Does not raise the CRF.",
+        description="Pede um arquivo de entrega menor. Não autoriza subir o CRF.",
     )
     audio_enhance: bool = Field(
         default=False,
-        description="Request audio enhancement. Off leaves the audio untouched.",
+        description="Pede tratamento de áudio. Desligado, o áudio permanece intacto.",
     )
     overlays: bool = Field(
         default=True,
-        description="Allow burning overlays when the video prompt asks for them.",
+        description="Permite queimar overlays quando o prompt de vídeo os pede.",
     )
     auto_approve: bool = Field(
         default=False,
-        description="Reserve a future human-approval skip. Does not disable QA.",
+        description=(
+            "Reserva um futuro pulo da aprovação humana. "
+            "Não desliga a checagem de qualidade."
+        ),
     )
     provider: str = Field(
         default="local",
-        description="AI provider name. The API key is not stored here.",
+        description="Nome do provedor de IA. A chave de API não fica aqui.",
     )
 
     @field_validator("video_prompt", "summary_prompt")
