@@ -51,20 +51,26 @@ class TextModelSettings(BaseModel):
 
     provider: str = Field(
         default="local",
-        description="Provider name. 'local' does not open a network connection.",
+        description="Nome do provedor. `local` não abre conexão de rede.",
     )
-    model: str = Field(default="", description="Model id chosen by the operator.")
+    model: str = Field(
+        default="",
+        description="Identificador do modelo escolhido por quem opera.",
+    )
     base_url: str | None = Field(
         default=None,
-        description="OpenAI-compatible base URL, without userinfo or a query.",
+        description=(
+            "URL base compatível com a API OpenAI, sem usuário, senha, "
+            "query ou fragmento."
+        ),
     )
     keyring_service: str = Field(
         default="megila",
-        description="OS keyring service name. Not the secret.",
+        description="Nome do serviço no chaveiro do sistema. Não é o segredo.",
     )
     keyring_account: str | None = Field(
         default=None,
-        description="OS keyring account name. Not the secret.",
+        description="Nome da conta no chaveiro do sistema. Não é o segredo.",
     )
 
     @field_validator("provider")
@@ -142,11 +148,26 @@ class Settings(BaseSettings):
 
     data_dir: Path = Field(
         default_factory=default_data_dir,
-        description="Local directory for the queue and job outputs.",
+        description=(
+            "Diretório local da fila e das saídas de cada job. "
+            "O padrão é `$XDG_DATA_HOME/megila`, ou `~/.local/share/megila` "
+            "quando `XDG_DATA_HOME` não é um caminho absoluto."
+        ),
     )
-    active_profile: str = "default"
-    text_model: TextModelSettings = Field(default_factory=TextModelSettings)
-    profiles: dict[str, Profile] = Field(default_factory=_default_profiles)
+    active_profile: str = Field(
+        default="default",
+        description="Nome do perfil ativo. Precisa existir em `profiles`.",
+    )
+    text_model: TextModelSettings = Field(
+        default_factory=TextModelSettings,
+        description="Como alcançar o modelo de texto. O segredo não fica aqui.",
+    )
+    profiles: dict[str, Profile] = Field(
+        default_factory=_default_profiles,
+        description=(
+            "Perfis nomeados. A chave é o identificador do perfil, como `default`."
+        ),
+    )
 
     @field_validator("data_dir", mode="before")
     @classmethod

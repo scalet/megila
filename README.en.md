@@ -139,6 +139,7 @@ Pages uses GitHub Actions as the source, is
 pages are in the repository:
 
 - [Home](docs/index.md)
+- [Configuration](docs/configuracao.md) (in Portuguese)
 - [Development environment](docs/dev/ambiente.md)
 - [Test samples](docs/dev/amostras.md)
 - [How to write the docs](docs/dev/docs.md)
