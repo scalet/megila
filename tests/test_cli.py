@@ -1,5 +1,6 @@
 """CLI unit tests."""
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -37,7 +38,10 @@ def test_short_version_flag() -> None:
 def test_help_lists_version_flag() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "--version" in result.stdout
+    # Rich can paint the dashes and the word separately, so the raw
+    # bytes are not the substring "--version".
+    visible = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--version" in visible
 
 
 def test_module_entrypoint_version() -> None:
