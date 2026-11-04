@@ -21,8 +21,10 @@ uma página nova aparece no menu sem alteração manual do `mkdocs.yml`.
 
 - [Configuração](configuracao.md)
 - [Perfis](perfis.md)
+- [Arquitetura](arquitetura/index.md)
 - [Ambiente de desenvolvimento](dev/ambiente.md)
 - [Amostras de teste](dev/amostras.md)
+- [Dados da fila](arquitetura/dados.md)
 - [Decisões arquiteturais](adr/index.md)
 - [Como escrever e visualizar a documentação](dev/docs.md)
 

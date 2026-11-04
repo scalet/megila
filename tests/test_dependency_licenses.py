@@ -21,12 +21,16 @@ _ALLOWED = frozenset(
     }
 )
 _PACKAGES = (
-    "pydantic",
-    "pydantic-settings",
-    "pydantic-core",
+    "alembic",
     "annotated-types",
-    "typing-extensions",
+    "mako",
+    "markupsafe",
+    "pydantic",
+    "pydantic-core",
+    "pydantic-settings",
     "python-dotenv",
+    "sqlalchemy",
+    "typing-extensions",
     "typing-inspection",
 )
 
@@ -52,3 +56,11 @@ def test_runtime_dependency_license_is_permissive(name: str) -> None:
 def test_settings_libraries_are_mit() -> None:
     assert _declared_license("pydantic") == "MIT"
     assert _declared_license("pydantic-settings") == "MIT"
+
+
+def test_queue_libraries_are_mit() -> None:
+    # ADR 0002: SQLAlchemy and Alembic are MIT. Mako is Alembic's template
+    # dependency and is MIT as well.
+    assert _declared_license("sqlalchemy") == "MIT"
+    assert _declared_license("alembic") == "MIT"
+    assert _declared_license("mako") == "MIT"

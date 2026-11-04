@@ -22,5 +22,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   decisões novas (M0-04).
 - Site de documentação com MkDocs Material, build estrito nos pull requests
   e publicação no GitHub Pages em `https://scalet.github.io/megila/` (M0-05).
+- Banco SQLite da fila com WAL, pragmas de durabilidade e migrações Alembic
+  (`jobs`, `steps`, `chunks`, `events`, `artifacts`, `reviews`, `qa_checks`,
+  `profiles`, `breakers`, `workers`) (M0-11).
 
 [Unreleased]: https://github.com/scalet/megila/commits/main
