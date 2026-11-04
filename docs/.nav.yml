@@ -2,4 +2,4 @@
 # sem editar mkdocs.yml. O mesmo vale para subpastas, por herança.
 append_unmatched: true
 nav:
-  - index.md
+  - Início: index.md

@@ -1,0 +1,20 @@
+# Configuração do markdownlint para as ADRs (MADR).
+# Na raiz do repositório:
+#   npx --yes markdownlint-cli@0.50.0 \
+#     --config docs/adr/.markdownlint.yaml "docs/adr/**/*.md"
+default: true
+
+# O front matter YAML do MADR não é Markdown.
+frontMatter: "^((?:\\+\\+\\+|---)[\\s\\S]+?(?:\\+\\+\\+|---))(\\r\\n|\\n|$)"
+
+MD013:
+  line_length: 120
+  heading_line_length: 120
+  code_blocks: false
+  tables: false
+  strict: false
+
+# O mesmo título pode existir em ADRs diferentes. Irmãos no mesmo
+# arquivo não podem repetir.
+MD024:
+  siblings_only: true

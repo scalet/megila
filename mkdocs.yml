@@ -9,6 +9,15 @@ docs_dir: docs
 
 copyright: Copyright &copy; 2026 Renan Scalet
 
+# Rótulos do campo `status` do MADR, em português. O tema mostra o ícone
+# ao lado de cada ADR no menu.
+extra:
+  status:
+    proposed: Proposta
+    accepted: Aceita
+    rejected: Rejeitada
+    deprecated: Obsoleta
+
 theme:
   name: material
   language: pt-BR
@@ -28,6 +37,7 @@ theme:
     - navigation.tracking
     - navigation.sections
     - navigation.expand
+    - navigation.indexes
     - navigation.top
     - search.suggest
     - search.highlight
@@ -45,7 +55,6 @@ plugins:
 
 markdown_extensions:
   - admonition
-  - attr_list
   - md_in_html
   - tables
   - toc:

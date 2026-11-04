@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+# Narração original escrita para o projeto Megila. Não é trecho de obra de terceiros.
+version: 1
+language: pt-BR
+---
+Esta é a amostra sintética número um do projeto Megila.
+O vídeo é um padrão técnico e a voz é sintetizada em português do Brasil.
+Este clipe existe para testar transcrição, legendas e qualidade.
+A imagem tem trezentos e vinte por duzentos e quarenta pixels, a vinte e cinco quadros por segundo.
+Conte devagar: um, dois, três, quatro, cinco, seis, sete, oito, nove, dez.
+Um pequeno jabuti xereta viu dez cegonhas felizes.
+O código da amostra é M zero traço zero três, versão um.
+Qualidade, velocidade, determinismo e reprodutibilidade.
+Fim da narração sintética.

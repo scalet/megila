@@ -1,7 +1,3 @@
----
-title: Como escrever a documentação
----
-
 # Como escrever a documentação
 
 O site é um projeto MkDocs à parte do pacote Python. As dependências de
@@ -9,7 +5,8 @@ build ficam em `docs/requirements.txt`. O workflow
 `.github/workflows/docs.yml` roda `mkdocs build --strict` em cada pull
 request e publica o site no GitHub Pages a cada push na `main`.
 
-O endereço público é <https://scalet.github.io/megila/>.
+O endereço público é `https://scalet.github.io/megila/`. Ele passa a
+responder quando o GitHub Pages estiver ligado à origem GitHub Actions.
 
 ## Publicação
 
@@ -46,7 +43,7 @@ A pasta `site/` é gerada localmente e não entra no Git.
 ## Acrescentar uma página
 
 1. Crie um arquivo `.md` em `docs/` ou numa subpasta. Escreva em português do Brasil.
-2. Comece com um título (`# ...`) ou defina `title` no front matter. Esse texto vira o item do menu.
+2. Comece com um título (`# ...`). Esse texto vira o item do menu. Para um rótulo diferente, declare-o no `.nav.yml` da pasta (`- Rótulo: pagina.md`). O markdownlint da raiz trata um `title:` de front matter seguido de `---` como outro título.
 3. Aponte para outras páginas com caminho relativo, por exemplo `[início](../index.md)`.
 
 Não liste a página em `mkdocs.yml`. O plugin `awesome-nav` monta o menu a
@@ -58,19 +55,21 @@ Arquivos novos entram sozinhos porque `docs/.nav.yml` define
 pasta precisar de título ou de ordem própria, crie nela um `.nav.yml`:
 
 ```yaml
-title: Decisões
+title: Decisões arquiteturais
 nav:
-  - 0001-registrar-o-formato.md
+  - index.md
+  - glob: "0*.md"
+    ignore_no_matches: false
+  - template.md
 ```
 
 O que ficar de fora dessa lista continua no menu, no final. Para ocultar um
 arquivo de propósito, veja a documentação do
 [awesome-nav](https://lukasgeiter.github.io/mkdocs-awesome-nav/).
 
-A pasta `docs/dev/` já tem o título **Desenvolvimento**. Quando entrarem no
-repositório, `docs/dev/ambiente.md`, `docs/dev/amostras.md`, as páginas em
-`docs/adr/` e qualquer outro Markdown em `docs/` aparecem no menu sem
-mudança no `mkdocs.yml`.
+O menu já inclui **Desenvolvimento** (`ambiente.md`, `amostras.md` e esta
+página) e **Decisões arquiteturais** (índice, ADRs 0001 a 0006 e o modelo).
+Outro Markdown em `docs/` entra no mesmo menu sem mudança no `mkdocs.yml`.
 
 ## Diagramas
 

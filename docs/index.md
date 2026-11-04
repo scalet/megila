@@ -1,7 +1,3 @@
----
-title: Início
----
-
 # Megila
 
 Megila é um pipeline genérico de vídeo, escrito em Python e publicado sob a
@@ -20,9 +16,12 @@ flowchart LR
 ## Documentação
 
 Este site é gerado com MkDocs Material e publicado em
-<https://scalet.github.io/megila/>. A navegação acompanha a pasta `docs/`:
+`https://scalet.github.io/megila/`. A navegação acompanha a pasta `docs/`:
 uma página nova aparece no menu sem alteração manual do `mkdocs.yml`.
 
+- [Ambiente de desenvolvimento](dev/ambiente.md)
+- [Amostras de teste](dev/amostras.md)
+- [Decisões arquiteturais](adr/index.md)
 - [Como escrever e visualizar a documentação](dev/docs.md)
 
 ## Código

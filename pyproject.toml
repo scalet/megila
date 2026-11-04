@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "megila"
+description = "Generic local-first video pipeline."
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Renan Scalet", email = "renan.scalet@gmail.com" }]
+keywords = ["video", "pipeline"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3 :: Only",
+  "Typing :: Typed",
+]
+dynamic = ["version"]
+dependencies = ["typer>=0.15.1"]
+
+[project.optional-dependencies]
+dev = [
+  "hypothesis>=6.100",
+  "mypy>=1.13",
+  "pre-commit>=4.0",
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "ruff>=0.8",
+]
+
+[project.scripts]
+megila = "megila.cli.app:main"
+
+[project.urls]
+Homepage = "https://github.com/scalet/megila"
+Repository = "https://github.com/scalet/megila"
+Issues = "https://github.com/scalet/megila/issues"
+
+[tool.hatch.version]
+path = "src/megila/__init__.py"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["megila"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+mypy_path = "src"
+explicit_package_bases = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "--cov=megila --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["megila"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.coverage.paths]
+megila = ["src/megila", "*/site-packages/megila"]
