@@ -6,8 +6,8 @@ operacional. Esta página diz onde o valor fica, o que acontece quando a
 máquina não tem chaveiro, e como o log esconde o segredo.
 
 A decisão de produto está na
-[ADR 0005](adr/0005-ia-plugavel-e-keyring.md). Os nomes `keyring_service`
-e `keyring_account`, que não são o segredo, estão na
+[ADR 0005](adr/0005-ia-plugavel-e-keyring.md). Os campos
+`keyring_service` e `keyring_account` estão na
 [configuração](configuracao.md). O perfil só guarda o nome do provedor,
 como em [Perfis](perfis.md).
 
@@ -18,19 +18,10 @@ O programa usa a biblioteca
 do sistema: Keychain, Credential Manager ou Secret Service, conforme a
 plataforma.
 
-O serviço é `text_model.keyring_service`. O padrão é `megila`. A conta
-é o nome do provedor passado ao comando, e deve ser o mesmo valor de
-`text_model.keyring_account`. Os dois campos estão no modelo de
-configuração. O valor da chave não está.
-
-```toml
-[text_model]
-provider = "openai-compatible"
-model = "nome-do-modelo"
-base_url = "https://exemplo-do-provedor/v1"
-keyring_service = "megila"
-keyring_account = "openai"
-```
+O serviço e a conta vêm de `text_model.keyring_service` e
+`text_model.keyring_account`. O padrão do serviço é `megila`. A conta é
+o nome usado em `megila keys set`. A referência desses campos está na
+[configuração](configuracao.md). O valor da chave não está no modelo.
 
 O provedor `local` não abre rede e não consulta o chaveiro.
 

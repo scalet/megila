@@ -139,6 +139,7 @@ responde, as páginas estão no repositório:
 
 - [Início](docs/index.md)
 - [Configuração](docs/configuracao.md)
+- [Segurança](docs/seguranca.md)
 - [Ambiente de desenvolvimento](docs/dev/ambiente.md)
 - [Amostras de teste](docs/dev/amostras.md)
 - [Como escrever a documentação](docs/dev/docs.md)

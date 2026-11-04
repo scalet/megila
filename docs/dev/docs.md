@@ -67,7 +67,7 @@ O que ficar de fora dessa lista continua no menu, no final. Para ocultar um
 arquivo de propósito, veja a documentação do
 [awesome-nav](https://lukasgeiter.github.io/mkdocs-awesome-nav/).
 
-O menu já inclui **Configuração**, **Perfis**, **Desenvolvimento**
+O menu já inclui **Configuração**, **Perfis**, **Segurança**, **Desenvolvimento**
 (`ambiente.md`, `amostras.md` e esta página) e **Decisões arquiteturais**
 (índice, ADRs 0001 a 0006 e o modelo). Outro Markdown em `docs/` entra no
 mesmo menu sem mudança no `mkdocs.yml`.
