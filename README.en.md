@@ -71,9 +71,11 @@ at zero cost. The detail is in
 The text model that plans overlays and writes the summary is pluggable.
 The default provider is local: no key and no external call. An external
 provider is opt-in, with your own key in the operating system keyring,
-not in the repository, the log, or the job directory. Transcription
-does not go through that port. It stays local. The detail is in
-[ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
+not in the repository, the log, or the job directory. The `megila keys`
+command stores, lists, and deletes that key. Without a system keyring,
+the command refuses to store the key; there is no file fallback.
+Transcription does not go through that port. It stays local. The detail
+is in [ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
 
 ### Resilience
 
@@ -94,16 +96,17 @@ video yet.
 What is already in the tree:
 
 - The package in `src/megila/` and the Typer CLI, which answers
-  `megila --version`.
+  `megila --version` and stores keys with `megila keys`.
 - The development tools: hatchling, ruff, strict mypy, pytest, and
   pre-commit.
 - The MkDocs site, ADRs 0001 through 0006, and the synthetic pt-BR test
   clip.
 - The code of conduct, the security policy, and the changelog.
 
-The CLI today reports the version. There are no pipeline subcommands
-yet. The inner packages mark each component's boundary. This tree
-cannot transcribe, overlay, compress, summarize, or cut clips.
+The CLI reports the version and, with `megila keys`, stores a provider
+key. There are no pipeline subcommands yet. The inner packages mark
+each component's boundary. This tree cannot transcribe, overlay,
+compress, summarize, or cut clips.
 
 ## Development install
 
@@ -140,6 +143,7 @@ pages are in the repository:
 
 - [Home](docs/index.md)
 - [Configuration](docs/configuracao.md) (in Portuguese)
+- [Security](docs/seguranca.md) (in Portuguese)
 - [Development environment](docs/dev/ambiente.md)
 - [Test samples](docs/dev/amostras.md)
 - [How to write the docs](docs/dev/docs.md)

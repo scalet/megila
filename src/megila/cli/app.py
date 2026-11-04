@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 
 from megila import __version__
+from megila.cli.keys import keys_app
 
 app = typer.Typer(
     name="megila",
@@ -34,6 +35,9 @@ def cli(
     ] = False,
 ) -> None:
     """Generic local-first video pipeline."""
+
+
+app.add_typer(keys_app, name="keys")
 
 
 def main() -> None:

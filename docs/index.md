@@ -21,6 +21,7 @@ uma página nova aparece no menu sem alteração manual do `mkdocs.yml`.
 
 - [Configuração](configuracao.md)
 - [Perfis](perfis.md)
+- [Segurança](seguranca.md)
 - [Ambiente de desenvolvimento](dev/ambiente.md)
 - [Amostras de teste](dev/amostras.md)
 - [Decisões arquiteturais](adr/index.md)
