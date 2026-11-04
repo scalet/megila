@@ -41,6 +41,7 @@ from megila.doctor.facts import (
 from megila.doctor.ffmpeg import (
     ffmpeg_argv,
     parse_build_flags,
+    parse_encoder_names,
     parse_filter_names,
     parse_version,
 )
@@ -76,6 +77,11 @@ _BUILD = """\
     --enable-libx264
 """
 _BUILD_VMAF = _BUILD + "    --enable-libvmaf\n"
+_ENCODERS = """\
+Encoders:
+ V....D libx264              libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10
+"""
+_ENCODERS_EMPTY = "Encoders:\n"
 _VERSION = (
     "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers\n"
 )
@@ -193,6 +199,7 @@ class MapRunner:
 def _runner(
     *,
     filters: str = _FILTERS_VMAF,
+    encoders: str = _ENCODERS,
     build: str = _BUILD_VMAF,
     version: str = _VERSION,
     version_code: int = 0,
@@ -204,6 +211,7 @@ def _runner(
         {
             "-version": (version_code, version, ""),
             "-filters": (0, filters, ""),
+            "-encoders": (0, encoders, ""),
             "-buildconf": (0, build, build_stderr),
             "nvidia-smi": (nvidia_code, nvidia, ""),
         }
@@ -237,6 +245,7 @@ def _report(**kwargs: object) -> tuple[DoctorReport, MapRunner]:
         if key
         in {
             "filters",
+            "encoders",
             "build",
             "version",
             "version_code",
@@ -263,6 +272,24 @@ def _report(**kwargs: object) -> tuple[DoctorReport, MapRunner]:
         config_error=config_error,
     )
     return report, scripted
+
+
+def test_encoder_parser_finds_libx264() -> None:
+    names = parse_encoder_names(_ENCODERS)
+    assert names == {"libx264"}
+    assert "libx264" not in parse_encoder_names(_ENCODERS_EMPTY)
+
+
+def test_libx264_from_encoder_without_build_flag() -> None:
+    report, _script = _report(
+        filters=_FILTERS_VMAF,
+        encoders=_ENCODERS,
+        build="configuration:\n",
+    )
+    assert report.ffmpeg.libx264_encoder is True
+    assert report.ffmpeg.libx264_build is False
+    assert report.ffmpeg.libx264 is True
+    assert LIBX264_MISSING not in report.warnings
 
 
 def test_filter_parser_ignores_the_legend_and_vmafmotion() -> None:
@@ -321,7 +348,7 @@ def test_missing_libass_is_a_hard_failure() -> None:
     assert report.exit_code == 1
     assert report.ok is False
     assert "missing" in render_plain(report)
-    assert script.calls[:3] == list(ffmpeg_argv("/usr/bin/ffmpeg"))
+    assert script.calls[:4] == list(ffmpeg_argv("/usr/bin/ffmpeg"))
     assert all("nvidia-smi" not in call[0] for call in script.calls)
 
 
@@ -345,7 +372,7 @@ def test_ffmpeg_nonzero_without_a_version_is_missing() -> None:
 
 
 def test_vmafmotion_does_not_satisfy_libvmaf() -> None:
-    report, _script = _report(filters=_FILTERS, build=_BUILD)
+    report, _script = _report(filters=_FILTERS, build=_BUILD, encoders=_ENCODERS)
     assert report.ffmpeg.libvmaf is False
     assert report.ffmpeg.libx264 is True
     assert report.warnings == (LIBVMAF_MISSING,)

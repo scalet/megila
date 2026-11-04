@@ -51,6 +51,7 @@ O doctor lê três invocações, cada uma com lista de argumentos e sem shell:
 ```bash
 ffmpeg -hide_banner -version
 ffmpeg -hide_banner -filters
+ffmpeg -hide_banner -encoders
 ffmpeg -hide_banner -buildconf
 ```
 
@@ -58,7 +59,8 @@ O libass conta quando o filtro `ass` aparece em `-filters` ou quando
 `--enable-libass` aparece em `-buildconf` (ou na linha `configuration` de
 `-version`). O libvmaf conta pelo filtro `libvmaf` ou por
 `--enable-libvmaf`. O filtro `vmafmotion` é outra coisa e não substitui o
-libvmaf. O libx264 conta por `--enable-libx264`.
+libvmaf. O libx264 conta pelo encoder `libx264` em `-encoders` ou por
+`--enable-libx264`.
 
 O endereço de download do ffmpeg é <https://ffmpeg.org/download.html>. O
 libass está em <https://github.com/libass/libass>. O VMAF está em

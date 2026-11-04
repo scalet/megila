@@ -131,9 +131,11 @@ def _libvmaf_detail(report: DoctorReport) -> str:
 
 
 def _libx264_detail(report: DoctorReport) -> str:
-    if report.ffmpeg.libx264_build:
-        return "--enable-libx264"
-    return "not built in"
+    ffmpeg = report.ffmpeg
+    return _evidence(
+        "encoder libx264" if ffmpeg.libx264_encoder else "",
+        "--enable-libx264" if ffmpeg.libx264_build else "",
+    )
 
 
 def _cpu_status(report: DoctorReport) -> str:

@@ -22,5 +22,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   decisões novas (M0-04).
 - Site de documentação com MkDocs Material, build estrito nos pull requests
   e publicação no GitHub Pages em `https://scalet.github.io/megila/` (M0-05).
+- Comando `megila doctor`: confere ffmpeg (libass e libvmaf), CPU, memória,
+  disco, GPU e sensores, sugere o perfil de máquina `leve`, `padrao` ou
+  `forte`, e sai com código diferente de zero se faltar o ffmpeg ou o
+  libass (M0-14).
 
 [Unreleased]: https://github.com/scalet/megila/commits/main

@@ -142,6 +142,7 @@ class FfmpegFacts:
     libass_build: bool
     libvmaf_filter: bool
     libvmaf_build: bool
+    libx264_encoder: bool
     libx264_build: bool
     error: str | None
 
@@ -157,8 +158,8 @@ class FfmpegFacts:
 
     @property
     def libx264(self) -> bool:
-        """True when ``--enable-libx264`` was seen."""
-        return self.libx264_build
+        """True when the ``libx264`` encoder or ``--enable-libx264`` was seen."""
+        return self.libx264_encoder or self.libx264_build
 
 
 @dataclass(frozen=True)
@@ -221,6 +222,7 @@ class DoctorReport:
                 "libass_build": self.ffmpeg.libass_build,
                 "libvmaf_filter": self.ffmpeg.libvmaf_filter,
                 "libvmaf_build": self.ffmpeg.libvmaf_build,
+                "libx264_encoder": self.ffmpeg.libx264_encoder,
                 "libx264_build": self.ffmpeg.libx264_build,
                 "error": self.ffmpeg.error,
             },
@@ -276,6 +278,7 @@ def absent_ffmpeg(error: str, *, path: str | None = None) -> FfmpegFacts:
         libass_build=False,
         libvmaf_filter=False,
         libvmaf_build=False,
+        libx264_encoder=False,
         libx264_build=False,
         error=error,
     )

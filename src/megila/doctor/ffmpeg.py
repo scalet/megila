@@ -1,4 +1,4 @@
-"""Parse ``ffmpeg -filters`` and ``ffmpeg -buildconf``."""
+"""Parse ``ffmpeg -filters``, ``ffmpeg -encoders``, and ``ffmpeg -buildconf``."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ FFMPEG_TIMEOUT_SECONDS = 15.0
 _VERSION = re.compile(r"ffmpeg version\s+(\S+)")
 _FLAG = re.compile(r"(?<!\S)(--[A-Za-z0-9][A-Za-z0-9._+-]*)(?:=\S+)?")
 _FILTER_LINE = re.compile(r"^\s*([.TSC|]{3})\s+([A-Za-z0-9_]+)\s+(\S+)\s+.+$")
+_ENCODER_LINE = re.compile(r"^\s*(\S+)\s+([A-Za-z0-9_+-]+)\s+")
 _PAD = re.compile(r"^[AVN|]+->[AVN|]+$")
 _ERROR_LIMIT = 300
 
@@ -48,14 +49,34 @@ def parse_filter_names(text: str) -> frozenset[str]:
     return frozenset(names)
 
 
-def inspect_ffmpeg(path: str | None, runner: CommandRunner) -> FfmpegFacts:
-    """Probe ``path`` with ``-version``, ``-filters``, and ``-buildconf``.
+def parse_encoder_names(text: str) -> frozenset[str]:
+    """Return encoder names from ``ffmpeg -encoders``.
 
+    Legend lines are skipped. The second column is the encoder id, as in
+    ``ffmpeg -encoders | awk '$2 == "libx264"'``.
+    """
+    names: set[str] = set()
+    for line in text.splitlines():
+        if line.strip() == "" or "----" in line or line.startswith("Encoders:"):
+            continue
+        if "=" in line and line.strip().endswith("="):
+            continue
+        match = _ENCODER_LINE.match(line)
+        if match is None:
+            continue
+        names.add(match.group(2))
+    return frozenset(names)
+
+
+def inspect_ffmpeg(path: str | None, runner: CommandRunner) -> FfmpegFacts:
+    """Probe ffmpeg at ``path``.
+
+    Runs ``-version``, ``-filters``, ``-encoders``, and ``-buildconf``.
     ``path`` None means the binary is not on ``PATH``. A non-zero ``-version``
     without a version string means the binary cannot be used. Library flags
     are read from ``-buildconf`` and from the configuration line of
     ``-version``. The ``ass`` and ``libvmaf`` filters are read from
-    ``-filters``.
+    ``-filters``. The ``libx264`` encoder is read from ``-encoders``.
     """
     if path is None:
         return absent_ffmpeg("ffmpeg was not found on PATH")
@@ -65,6 +86,10 @@ def inspect_ffmpeg(path: str | None, runner: CommandRunner) -> FfmpegFacts:
     )
     filters = runner(
         [path, "-hide_banner", "-filters"],
+        timeout=FFMPEG_TIMEOUT_SECONDS,
+    )
+    encoders = runner(
+        [path, "-hide_banner", "-encoders"],
         timeout=FFMPEG_TIMEOUT_SECONDS,
     )
     build = runner(
@@ -77,15 +102,17 @@ def inspect_ffmpeg(path: str | None, runner: CommandRunner) -> FfmpegFacts:
         detail = _failure_detail(version)
         return absent_ffmpeg(detail, path=path)
     flags = parse_build_flags(combined_output(build)) | parse_build_flags(version_text)
-    names = parse_filter_names(combined_output(filters))
+    filter_names = parse_filter_names(combined_output(filters))
+    encoder_names = parse_encoder_names(combined_output(encoders))
     return FfmpegFacts(
         present=True,
         path=path,
         version=parsed,
-        libass_filter="ass" in names,
+        libass_filter="ass" in filter_names,
         libass_build="--enable-libass" in flags,
-        libvmaf_filter="libvmaf" in names,
+        libvmaf_filter="libvmaf" in filter_names,
         libvmaf_build="--enable-libvmaf" in flags,
+        libx264_encoder="libx264" in encoder_names,
         libx264_build="--enable-libx264" in flags,
         error=None,
     )
@@ -100,9 +127,10 @@ def _failure_detail(result: CommandResult) -> str:
 
 
 def ffmpeg_argv(path: str) -> tuple[tuple[str, ...], ...]:
-    """Return the three ffmpeg invocations doctor always makes."""
+    """Return the ffmpeg invocations doctor always makes."""
     return (
         (path, "-hide_banner", "-version"),
         (path, "-hide_banner", "-filters"),
+        (path, "-hide_banner", "-encoders"),
         (path, "-hide_banner", "-buildconf"),
     )

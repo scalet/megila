@@ -14,7 +14,12 @@ import pytest
 from typer.testing import CliRunner
 
 from megila.cli import app
-from megila.doctor.ffmpeg import parse_build_flags, parse_filter_names, parse_version
+from megila.doctor.ffmpeg import (
+    parse_build_flags,
+    parse_encoder_names,
+    parse_filter_names,
+    parse_version,
+)
 
 runner = CliRunner()
 
@@ -30,12 +35,14 @@ def test_doctor_matches_this_ffmpeg(tmp_path: Path) -> None:
     ffmpeg = _require_ffmpeg()
     version = _run(ffmpeg, "-version")
     filters = _run(ffmpeg, "-filters")
+    encoders = _run(ffmpeg, "-encoders")
     build = _run(ffmpeg, "-buildconf")
     names = parse_filter_names(filters)
+    encoder_names = parse_encoder_names(encoders)
     flags = parse_build_flags(build) | parse_build_flags(version)
     libass = ("ass" in names) or ("--enable-libass" in flags)
     libvmaf = ("libvmaf" in names) or ("--enable-libvmaf" in flags)
-    libx264 = "--enable-libx264" in flags
+    libx264 = ("libx264" in encoder_names) or ("--enable-libx264" in flags)
 
     source = tmp_path / "source"
     source.mkdir()
