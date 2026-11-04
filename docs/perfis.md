@@ -31,7 +31,9 @@ JSON. A cópia não tem campo de segredo.
 `local` não abre conexão externa e não consulta o chaveiro. Outro nome,
 como `openai-compatible`, é opt-in. A URL e a conta ficam em
 `text_model` na [configuração](configuracao.md), não no perfil
-exportado. Enquanto o perfil disser `local`, o job não usa essa URL.
+exportado. A chave dessa conta é gravada com `megila keys`, como em
+[Segurança](seguranca.md). Enquanto o perfil disser `local`, o job não
+usa essa URL.
 
 Um nome de provedor tem de 1 a 64 caracteres: letras minúsculas,
 dígitos, hífens e sublinhados, começando por letra. `local` e

@@ -21,7 +21,7 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-O extra `dev` instala pytest, pytest-cov, ruff, mypy, pre-commit e hypothesis. A dependência de runtime é o Typer.
+O extra `dev` instala pytest, pytest-cov, ruff, mypy, pre-commit e hypothesis. As dependências de runtime são o Typer, o keyring e o structlog.
 
 Ative os ganchos do Git uma vez por clone:
 
@@ -58,8 +58,9 @@ O pacote usa layout `src` (`src/megila/`). Os testes importam o código instalad
 
 | Pacote | Função |
 | --- | --- |
-| `megila.cli` | Borda de linha de comando (Typer). Nesta fase responde `--version` e `-V`. |
-| `megila.config` | Configuração de execução: caminhos, modelo e provedor. A chave de API fica no keyring do sistema operacional. |
+| `megila.cli` | Borda de linha de comando (Typer). Responde `--version`, `-V` e `megila keys`. |
+| `megila.config` | Configuração de execução: caminhos, modelo e provedor. A chave de API não entra no arquivo. |
+| `megila.secrets` | Chave do provedor no keyring do sistema. Sem backend, arquivo com modo 0600. |
 | `megila.jobs` | Ciclo de vida dos trabalhos. |
 | `megila.jobs.queue` | Fila durável em SQLite (WAL), com lease (reserva temporária) e heartbeat (sinal de vida). Pacote separado para a implementação ficar junto da interface. |
 | `megila.stages` | Etapas do pipeline: ingerir, transcrever, sobrepor legendas, codificar e medir qualidade. |
@@ -69,10 +70,10 @@ O pacote usa layout `src` (`src/megila/`). Os testes importam o código instalad
 | `megila.notify` | Notificações de saída, a começar pelo Telegram. |
 | `megila.storage` | Arquivos locais, com backup opcional via rclone na mesma fronteira. |
 
-Nesta fase os pacotes declaram a fronteira de cada componente. As bordas (`cli`, `api`, `notify`, `storage`, `providers`) ficam separadas do núcleo (`jobs`, `stages`, `config`, `plugins`).
+Nesta fase os pacotes declaram a fronteira de cada componente. As bordas (`cli`, `api`, `notify`, `storage`, `providers`, `secrets`) ficam separadas do núcleo (`jobs`, `stages`, `config`, `plugins`).
 
 ## Arquivos fora do Git
 
 O `.gitignore` cobre `.env`, `keys/`, `secrets/`, caches de modelo (`models/`, `model_cache/`, `huggingface/`, `whisper/`, `whisper_models/`) e saídas de mídia (`output/`, `outputs/`, `renders/`, `media_out/`). Clipes de teste em `tests/assets/` permanecem no repositório.
 
-A chave de API, quando a integração existir, fica no keyring do sistema operacional.
+A chave de API fica no keyring do sistema operacional. O comando e a alternativa em arquivo estão em [Segurança](../seguranca.md).
