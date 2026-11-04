@@ -3,3 +3,5 @@
 append_unmatched: true
 nav:
   - Início: index.md
+  - Instalação: instalacao.md
+  - Solução de problemas: troubleshooting.md

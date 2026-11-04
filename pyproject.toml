@@ -21,6 +21,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
+  "psutil>=6.1",
   "pydantic>=2.14",
   "pydantic-settings>=2.16",
   "typer>=0.15.1",
@@ -34,6 +35,7 @@ dev = [
   "pytest>=8.3",
   "pytest-cov>=6.0",
   "ruff>=0.8",
+  "types-psutil>=7.0",
 ]
 
 [project.scripts]

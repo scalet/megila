@@ -21,6 +21,7 @@ _ALLOWED = frozenset(
     }
 )
 _PACKAGES = (
+    "psutil",
     "pydantic",
     "pydantic-settings",
     "pydantic-core",
@@ -52,3 +53,7 @@ def test_runtime_dependency_license_is_permissive(name: str) -> None:
 def test_settings_libraries_are_mit() -> None:
     assert _declared_license("pydantic") == "MIT"
     assert _declared_license("pydantic-settings") == "MIT"
+
+
+def test_psutil_is_bsd_3_clause() -> None:
+    assert _declared_license("psutil") == "BSD-3-Clause"
