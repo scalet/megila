@@ -1,0 +1,7 @@
+# MkDocs build output
+/site/
+
+# Local preview environment documented in docs/dev/docs.md
+.venv/
+__pycache__/
+*.pyc

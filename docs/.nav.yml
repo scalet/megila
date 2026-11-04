@@ -1,0 +1,5 @@
+# A página inicial fica no topo. Todo Markdown novo em docs/ entra depois,
+# sem editar mkdocs.yml. O mesmo vale para subpastas, por herança.
+append_unmatched: true
+nav:
+  - index.md

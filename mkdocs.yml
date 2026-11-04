@@ -1,0 +1,76 @@
+site_name: Megila
+site_description: Pipeline genérico de vídeo em Python.
+site_author: Renan Scalet
+site_url: https://scalet.github.io/megila/
+repo_url: https://github.com/scalet/megila
+repo_name: scalet/megila
+edit_uri: edit/main/docs/
+docs_dir: docs
+
+copyright: Copyright &copy; 2026 Renan Scalet
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Mudar para o modo escuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Mudar para o modo claro
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - toc.follow
+
+# A navegação não fica aqui. O plugin awesome-nav monta o menu a partir
+# dos arquivos em docs/ (e de docs/.nav.yml). Um `nav` neste arquivo gera
+# aviso, e `mkdocs build --strict` trata aviso como erro.
+plugins:
+  - search:
+      lang: pt
+  - awesome-nav
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# Link interno quebrado, âncora inexistente ou página de fora do menu
+# viram aviso. Com `mkdocs build --strict`, o build falha.
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+  nav:
+    not_found: warn
+  links:
+    not_found: warn
