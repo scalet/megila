@@ -51,35 +51,20 @@ texto. O nome do provedor segue a regra da
 `list` com a lista vazia não imprime nomes. A saída com nomes é uma
 linha por provedor, em ordem, sem o segredo.
 
-## Alternativa em arquivo
+## Sem chaveiro no sistema
 
-A [ADR 0005](adr/0005-ia-plugavel-e-keyring.md) prefere o chaveiro e
-recusa segredo no arquivo de configuração, em variável de ambiente, na
-fila e no log. Quando o sistema não oferece um backend de chaveiro, o
-Megila não pede para colocar a chave no `config.toml` nem no ambiente.
-Ele grava um arquivo separado, só nessa situação.
+A [ADR 0005](adr/0005-ia-plugavel-e-keyring.md) exige o chaveiro do
+sistema operacional. O Megila não grava a chave no `config.toml`, em
+variável de ambiente, em arquivo separado, na fila SQLite nem no log.
 
-O caminho é `$XDG_CONFIG_HOME/megila/secrets.json` quando
-`XDG_CONFIG_HOME` é um caminho absoluto e não está vazio. Caso
-contrário, `~/.config/megila/secrets.json`. Um valor vazio ou relativo
-em `XDG_CONFIG_HOME` é ignorado, como na
-[configuração](configuracao.md).
-
-O arquivo é criado com modo `0600`: só quem é dono lê e escreve. A
-gravação usa um temporário no mesmo diretório, também em `0600`, e
-troca o nome com `os.replace`. O modo não depende do `umask`. Um link
-simbólico nesse caminho é recusado na leitura. `megila keys set`
-substitui o link e não escreve no alvo.
-
-Esse arquivo não é o `config.toml`, não é um `.env` e não fica no
-diretório de dados nem no diretório do job. A fila SQLite não recebe a
-chave. Se mais tarde a máquina passar a ter chaveiro, as chaves que já
-estavam no arquivo continuam nele: o processo usa o chaveiro e não
-copia o arquivo sozinho. Apagar o arquivo, ou gravar de novo com
-`megila keys set` enquanto o chaveiro existe, é uma ação de quem usa.
+Quando não há backend de chaveiro utilizável, `megila keys set` falha
+com uma mensagem que pede para instalar ou desbloquear o chaveiro
+(Keychain, Credential Manager ou Secret Service). O provedor `local`
+continua funcionando sem chave. Um provedor externo só sobe depois que
+o chaveiro estiver disponível.
 
 O backend nulo e o backend que só falha contam como ausência de
-chaveiro. Um chaveiro presente e bloqueado não cai para o arquivo: o
+chaveiro. Um chaveiro bloqueado não é substituído por outro lugar: o
 comando pede para desbloquear.
 
 ## O que não guarda a chave
@@ -106,10 +91,8 @@ um processador redige:
 - prefixos de chave no formato `sk-`, `ghp_` e `AKIA`.
 
 O texto que substitui o segredo é `***`. O que pode aparecer no log é o
-nome do provedor, o serviço do chaveiro, o tipo de backend
-(`keyring` ou `file`) e, na alternativa em arquivo, o caminho. O valor
-não entra. Corpo de pedido e corpo de resposta de um provedor também
-não são logados.
+nome do provedor e o serviço do chaveiro. O valor não entra. Corpo de
+pedido e corpo de resposta de um provedor também não são logados.
 
 Um log da biblioteca padrão da linguagem passa pelo mesmo redator no
 texto da mensagem.
@@ -134,6 +117,6 @@ o chaveiro e o log:
 
 No Linux o pip instala `SecretStorage` e `jeepney` porque o keyring os
 declara nessa plataforma. Sem um serviço de segredo acessível, o
-backend não sobe e vale a alternativa em arquivo. `MIT-0` não acrescenta
-obrigação além da MIT. O teste de licenças do repositório confere essa
-lista.
+backend não sobe e `megila keys` recusa gravar a chave. `MIT-0` não
+acrescenta obrigação além da MIT. O teste de licenças do repositório
+confere essa lista.

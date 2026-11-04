@@ -165,11 +165,10 @@ O comando não aceita a chave como argumento. O programa pede o valor
 num prompt oculto. `megila keys list` mostra só os nomes dos
 provedores. `megila keys delete` apaga uma conta.
 
-Sem um backend de chaveiro, a chave vai para um arquivo com modo
-`0600` em `$XDG_CONFIG_HOME/megila/secrets.json`, ou
-`~/.config/megila/secrets.json`. Esse arquivo não é o `config.toml`.
-O caminho, a permissão e o mascaramento do log estão em
-[Segurança](seguranca.md).
+Sem um backend de chaveiro utilizável, `megila keys` recusa gravar a
+chave. O Megila não cai para arquivo, variável de ambiente nem SQLite,
+conforme a [ADR 0005](adr/0005-ia-plugavel-e-keyring.md). O mascaramento
+do log está em [Segurança](seguranca.md).
 
 ## Escrita atômica
 

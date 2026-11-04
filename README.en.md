@@ -73,7 +73,7 @@ The default provider is local: no key and no external call. An external
 provider is opt-in, with your own key in the operating system keyring,
 not in the repository, the log, or the job directory. The `megila keys`
 command stores, lists, and deletes that key. Without a system keyring,
-it stays in a mode-0600 file, outside configuration and logs.
+the command refuses to store the key; there is no file fallback.
 Transcription does not go through that port. It stays local. The detail
 is in [ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
 

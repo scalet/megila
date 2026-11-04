@@ -24,16 +24,6 @@ def config_path() -> Path:
     return config_home() / "megila" / "config.toml"
 
 
-def secrets_path() -> Path:
-    """Return the file used when no OS keyring backend is available.
-
-    ``$XDG_CONFIG_HOME/megila/secrets.json`` when that variable is an absolute
-    path, otherwise ``~/.config/megila/secrets.json``. The file is not
-    ``config.toml``. Callers create it with mode ``0600``.
-    """
-    return config_home() / "megila" / "secrets.json"
-
-
 def data_home() -> Path:
     """Return the XDG data home, or ``~/.local/share``."""
     return _xdg_dir("XDG_DATA_HOME", Path.home() / ".local" / "share")

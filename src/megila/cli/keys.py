@@ -11,7 +11,6 @@ from typing import Annotated
 import typer
 
 from megila.config.errors import ConfigError
-from megila.config.paths import secrets_path
 from megila.config.profile import validate_provider_name
 from megila.config.settings import load_settings
 from megila.log import configure_logging
@@ -76,15 +75,9 @@ def set_key(
     except SecretError as exc:
         typer.echo(str(exc), err=True)
         raise typer.Exit(code=1) from None
-    if store.backend_kind == "keyring":
-        typer.echo(
-            f"Stored the key for provider {name!r} "
-            f"in the OS keyring (service {store.service!r})."
-        )
-        return
     typer.echo(
-        f"Stored the key for provider {name!r} in {secrets_path()} "
-        "with mode 0600 (no OS keyring backend is available)."
+        f"Stored the key for provider {name!r} "
+        f"in the OS keyring (service {store.service!r})."
     )
 
 

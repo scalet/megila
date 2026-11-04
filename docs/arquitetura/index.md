@@ -43,7 +43,7 @@ há aplicação React no repositório.
 | `megila.cli` | Existe | Linha de comando. Versão e `megila keys`. |
 | `megila.api` | Planejado | HTTP com FastAPI, chamando o mesmo núcleo da CLI. |
 | `megila.config` | Existe | Caminhos, perfis e modelo de texto. Sem segredo no arquivo. |
-| `megila.secrets` | Existe | Chave no keyring. Sem backend, arquivo com modo 0600. |
+| `megila.secrets` | Existe | Chave no keyring. Sem backend, não grava em arquivo. |
 | `megila.jobs` | Decidido | Ciclo de vida do job. Contrato espalhado pelas ADRs 0003 a 0006. |
 | `megila.jobs.queue` | Decidido | Fila SQLite com WAL. [ADR 0003](../adr/0003-fila-sqlite-wal.md). |
 | `megila.stages` | Decidido | Etapas. O pacote cita ingerir, transcrever, overlay, encode e gate. |
@@ -529,12 +529,9 @@ desses quatro nomes está implementado.
 A chave é lida com a biblioteca `keyring`, no serviço configurado (o
 padrão é `megila`) e na conta configurada. O comando é `megila keys`.
 O chaveiro é o do sistema operacional. Se o backend não estiver
-disponível, o valor vai para um arquivo com modo `0600` em
-`$XDG_CONFIG_HOME/megila/secrets.json`, ou
-`~/.config/megila/secrets.json`. Esse arquivo não é o `config.toml`,
-não é variável de ambiente e não entra na tabela do job. O provedor
-`local` continua funcionando sem chave. O detalhe está em
-[Segurança](../seguranca.md).
+disponível, o Megila não grava a chave em arquivo, variável de ambiente
+nem SQLite. O provedor `local` continua funcionando sem chave. O detalhe
+está em [Segurança](../seguranca.md).
 
 O valor lido não entra no payload do job, não entra no `manifest.json`
 nem no `qa.json`, e não é escrito no diretório de saída. Um filtro de

@@ -1,9 +1,9 @@
 """Provider API keys.
 
 Keys live in the operating-system keyring, under the service and account
-names from the text-model settings. When no keyring backend is available,
-they live in a mode-0600 file under the Megila config directory. Either way
-they stay out of ``config.toml``, the environment, and the job directory.
+names from the text-model settings. They stay out of ``config.toml``, the
+environment, files under the config directory, and the job directory.
+Without a usable keyring backend, Megila does not store the key.
 """
 
 from megila.secrets.errors import SecretError, SecretNotFoundError

@@ -69,8 +69,8 @@ O provedor padrão é local: sem chave e sem chamada externa. Um provedor
 externo é opt-in, com a chave da própria pessoa no keyring do sistema
 operacional, não no repositório, no log nem no diretório do job. O
 comando `megila keys` grava, lista e apaga essa chave. Sem chaveiro no
-sistema, ela fica num arquivo com modo 0600, fora da configuração e do
-log. A transcrição não passa por essa porta. Continua local. O detalhe
+sistema, o comando recusa gravar; não há fallback em arquivo. A
+transcrição não passa por essa porta. Continua local. O detalhe
 está na [ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
 
 ### Resiliência

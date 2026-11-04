@@ -1,4 +1,4 @@
-"""Keyring store, file fallback permissions, and secret masking."""
+"""Keyring store, missing-backend rejection, and secret masking."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import io
 import json
 import logging
 import os
-import stat
 import traceback
 from collections.abc import Iterator
 from pathlib import Path
@@ -18,7 +17,7 @@ from keyring.backend import KeyringBackend
 from typer.testing import CliRunner
 
 from megila.cli.app import app
-from megila.config import load_settings, secrets_path
+from megila.config import load_settings
 from megila.log import (
     clear_registered_secrets,
     configure_logging,
@@ -26,7 +25,12 @@ from megila.log import (
     mask_text,
     reset_logging,
 )
-from megila.secrets import SecretError, SecretStore, secret_for_text_model
+from megila.secrets import (
+    SecretError,
+    SecretStore,
+    os_keyring_available,
+    secret_for_text_model,
+)
 from megila.secrets.store import reset_backend_log
 
 _CANARY = "megila-FAKE-KEY-DO-NOT-LEAK-9f3c1a7b"
@@ -116,7 +120,7 @@ def test_memory_keyring_round_trip_lists_names_only(
     memory: MemoryKeyring, isolated: Path
 ) -> None:
     store = SecretStore(service="megila")
-    assert store.backend_kind == "keyring"
+    assert os_keyring_available()
     store.set("openai", "first-value-not-shown")
     store.set("anthropic", "second-value-not-shown")
     assert store.get("openai") == "first-value-not-shown"
@@ -220,96 +224,16 @@ def test_keyring_error_does_not_include_the_secret(memory: MemoryKeyring) -> Non
     assert "openai" not in memory.passwords.get(("megila", "openai"), "")
 
 
-def test_file_fallback_is_mode_0600(isolated: Path) -> None:
+def test_no_keyring_backend_rejects_store_and_list(isolated: Path) -> None:
     keyring.set_keyring(_fail_keyring())
-    buffer = io.StringIO()
-    configure_logging(buffer, force=True)
-    secret = "file-fallback-canary-mode-0600"
+    assert not os_keyring_available()
     store = SecretStore(service="megila")
-    assert store.backend_kind == "file"
-    old_umask = os.umask(0)
-    try:
-        store.set("openai", secret)
-        store.set("anthropic", "second-file-value")
-    finally:
-        os.umask(old_umask)
-    path = isolated / "xdg-config" / "megila" / "secrets.json"
-    assert path.is_file()
-    assert not path.is_symlink()
-    mode = stat.S_IMODE(path.stat().st_mode)
-    assert mode == 0o600
-    assert mode & 0o077 == 0
-    document = json.loads(path.read_text(encoding="utf-8"))
-    assert document["services"]["megila"]["openai"] == secret
-    assert store.list_accounts() == ["anthropic", "openai"]
-    assert secret not in store.list_accounts()
-    assert secret not in buffer.getvalue()
-    assert "second-file-value" not in buffer.getvalue()
-    assert not list(path.parent.glob(".secrets.*.tmp"))
-    assert store.get("openai") == secret
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
-    config = isolated / "xdg-config" / "megila" / "config.toml"
-    if config.exists():
-        assert secret not in config.read_text(encoding="utf-8")
-    store.delete("openai")
-    store.delete("anthropic")
-    assert not path.exists()
-
-
-def test_file_fallback_respects_xdg_and_rejects_relative(
-    isolated: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    keyring.set_keyring(_fail_keyring())
-    home = isolated / "home"
-    monkeypatch.setenv("XDG_CONFIG_HOME", "relative/config")
-    assert secrets_path() == home / ".config" / "megila" / "secrets.json"
-    SecretStore().set("openai", "relative-xdg-value")
-    path = secrets_path()
-    assert path.is_file()
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
-    assert "relative-xdg-value" in path.read_text(encoding="utf-8")
+    with pytest.raises(SecretError, match="does not store provider keys in a file"):
+        store.set("openai", "never-written")
+    with pytest.raises(SecretError, match="does not store provider keys in a file"):
+        store.list_accounts()
     assert not (isolated / "xdg-config" / "megila" / "secrets.json").exists()
-
-
-def test_loose_file_is_tightened_and_symlink_is_replaced(isolated: Path) -> None:
-    keyring.set_keyring(_fail_keyring())
-    path = secrets_path()
-    path.parent.mkdir(parents=True)
-    path.write_text(
-        json.dumps({"version": 1, "services": {"megila": {"openai": "kept"}}}),
-        encoding="utf-8",
-    )
-    os.chmod(path, 0o644)
-    store = SecretStore()
-    assert store.list_accounts() == ["openai"]
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
-
-    target = isolated / "world-readable.txt"
-    target.write_text("do-not-overwrite-target", encoding="utf-8")
-    os.chmod(target, 0o644)
-    path.unlink()
-    path.symlink_to(target)
-    store.set("anthropic", "symlink-value")
-    assert path.is_file()
-    assert not path.is_symlink()
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
-    assert target.read_text(encoding="utf-8") == "do-not-overwrite-target"
-    assert "symlink-value" in path.read_text(encoding="utf-8")
-
-
-def test_invalid_secret_file_is_not_echoed(isolated: Path) -> None:
-    keyring.set_keyring(_fail_keyring())
-    path = secrets_path()
-    path.parent.mkdir(parents=True)
-    path.write_text('{"broken": ' + _CANARY, encoding="utf-8")
-    os.chmod(path, 0o600)
-    with pytest.raises(SecretError) as caught:
-        SecretStore().list_accounts()
-    message = str(caught.value)
-    rendered = "".join(traceback.format_exception(caught.value))
-    assert _CANARY not in message
-    assert _CANARY not in rendered
-    assert "not shown" in message or "not valid JSON" in message
+    assert not (isolated / "home" / ".config" / "megila" / "secrets.json").exists()
 
 
 def test_known_fake_key_never_appears_in_logs_files_or_errors(
