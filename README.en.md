@@ -99,6 +99,8 @@ What is already in the tree:
   pre-commit.
 - The MkDocs site, ADRs 0001 through 0006, and the synthetic pt-BR test
   clip.
+- The SQLite queue database, with WAL and Alembic migrations, in
+  `src/megila/jobs/queue/`. Job claim does not run yet.
 - The code of conduct, the security policy, and the changelog.
 
 The CLI today reports the version. There are no pipeline subcommands
@@ -142,6 +144,7 @@ pages are in the repository:
 - [Development environment](docs/dev/ambiente.md)
 - [Test samples](docs/dev/amostras.md)
 - [How to write the docs](docs/dev/docs.md)
+- [Queue database](docs/arquitetura/dados.md) (Portuguese)
 - [Architectural decisions](docs/adr/index.md)
 
 The ADRs are written in Portuguese, in MADR form:

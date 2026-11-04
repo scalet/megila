@@ -3,3 +3,4 @@
 append_unmatched: true
 nav:
   - Início: index.md
+  - arquitetura
