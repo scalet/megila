@@ -19,6 +19,8 @@ Este site é gerado com MkDocs Material e publicado em
 `https://scalet.github.io/megila/`. A navegação acompanha a pasta `docs/`:
 uma página nova aparece no menu sem alteração manual do `mkdocs.yml`.
 
+- [Configuração](configuracao.md)
+- [Perfis](perfis.md)
 - [Ambiente de desenvolvimento](dev/ambiente.md)
 - [Amostras de teste](dev/amostras.md)
 - [Decisões arquiteturais](adr/index.md)

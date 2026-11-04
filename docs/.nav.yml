@@ -3,3 +3,5 @@
 append_unmatched: true
 nav:
   - Início: index.md
+  - Configuração: configuracao.md
+  - Perfis: perfis.md
