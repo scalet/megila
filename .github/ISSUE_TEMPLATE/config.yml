@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Relato de vulnerabilidade
+    url: https://github.com/scalet/megila/security/advisories/new
+    about: Use o reporte privado dos GitHub Security Advisories.

@@ -3,6 +3,10 @@ globs:
   - "**/*.md"
 ignores:
   - "node_modules/**"
+  # Created locally by the development setup and the docs build.
+  # They are not project documentation.
+  - ".venv/**"
+  - "site/**"
 config:
   default: true
   # Prose in pt-BR, the Contributor Covenant paragraphs, and URLs exceed
