@@ -20,7 +20,11 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["typer>=0.15.1"]
+dependencies = [
+  "pydantic>=2.14",
+  "pydantic-settings>=2.16",
+  "typer>=0.15.1",
+]
 
 [project.optional-dependencies]
 dev = [
