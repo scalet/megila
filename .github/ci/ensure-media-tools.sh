@@ -56,8 +56,14 @@ run_root() {
 }
 
 apt_install() {
-  run_root apt-get update
-  run_root apt-get install -y ffmpeg espeak-ng
+  # Hosted runners often start apt in the background. apt-get waits on that
+  # lock with no deadline, so bound both the lists lock and the dpkg lock.
+  run_root flock -w 180 /var/lib/apt/lists/lock \
+    flock -w 180 /var/lib/dpkg/lock-frontend \
+    apt-get update
+  run_root flock -w 180 /var/lib/apt/lists/lock \
+    flock -w 180 /var/lib/dpkg/lock-frontend \
+    apt-get install -y ffmpeg espeak-ng
 }
 
 select_static() {
@@ -121,7 +127,10 @@ install_static() {
   local work archive found bin_dir
   work="$(mktemp -d)"
   archive="${work}/ffmpeg.tar.xz"
-  curl --fail --silent --show-error --location --output "${archive}" "${STATIC_URL}"
+  curl --fail --silent --show-error --location \
+    --retry 5 --retry-delay 2 --retry-all-errors \
+    --connect-timeout 20 --max-time 300 \
+    --output "${archive}" "${STATIC_URL}"
   echo "${STATIC_SHA}  ${archive}" | sha256sum --check
   tar --extract --xz --file "${archive}" --directory "${work}"
   found="$(find "${work}" -type f -path '*/bin/ffmpeg' -print -quit)"

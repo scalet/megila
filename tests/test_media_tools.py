@@ -102,6 +102,8 @@ def test_pinned_static_build_is_recorded() -> None:
     assert "autobuild-2026-11-04-12-51" in text
     assert "libvmaf" in text
     assert "libx264" in text
+    assert "flock -w 180" in text
+    assert "--max-time 300" in text
 
 
 def test_check_accepts_a_complete_tool_set(tmp_path: Path) -> None:
