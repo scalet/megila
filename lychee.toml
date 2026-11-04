@@ -1,0 +1,14 @@
+# Link check for Markdown files.
+# lychee is dual-licensed under the Apache License 2.0 or the MIT license.
+# This repository uses it under the MIT license.
+no_progress = true
+max_retries = 4
+retry_wait_time = 2
+timeout = 30
+max_concurrency = 8
+host_concurrency = 2
+host_request_interval = "200ms"
+include_fragments = "none"
+exclude_all_private = true
+user_agent = "megila-link-check/1.0 (+https://github.com/scalet/megila)"
+scheme = ["http", "https"]

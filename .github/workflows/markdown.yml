@@ -1,0 +1,69 @@
+name: Markdown
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: markdown-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdownlint:
+    name: markdownlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Run markdownlint-cli2
+        run: npx --yes markdownlint-cli2@0.24.0
+
+  links:
+    name: link check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install lychee
+        run: |
+          set -euo pipefail
+          version="lychee-v0.24.2"
+          case "$(uname -m)" in
+            x86_64)
+              asset="lychee-x86_64-unknown-linux-gnu.tar.gz"
+              sha="1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a"
+              ;;
+            aarch64)
+              asset="lychee-aarch64-unknown-linux-gnu.tar.gz"
+              sha="91a7bd65685da41b90ccb9bc867a3d649a7818042dae04ff405e55a25bddee4c"
+              ;;
+            *)
+              echo "unsupported architecture: $(uname -m)" >&2
+              exit 1
+              ;;
+          esac
+          url="https://github.com/lycheeverse/lychee/releases/download/${version}/${asset}"
+          mkdir -p "${HOME}/.local/bin"
+          curl --fail --silent --show-error --location --output "${asset}" "${url}"
+          echo "${sha}  ${asset}" | sha256sum --check
+          tar --extract --gzip --file "${asset}"
+          install -m 0755 "${asset%.tar.gz}/lychee" "${HOME}/.local/bin/lychee"
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+          rm -rf "${asset}" "${asset%.tar.gz}"
+
+      - name: Check Markdown links
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: lychee --config lychee.toml --no-progress "**/*.md"

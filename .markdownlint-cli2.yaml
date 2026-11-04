@@ -1,0 +1,13 @@
+# markdownlint-cli2 configuration. The CLI and the markdownlint library are MIT.
+globs:
+  - "**/*.md"
+ignores:
+  - "node_modules/**"
+config:
+  default: true
+  # Prose in pt-BR, the Contributor Covenant paragraphs, and URLs exceed
+  # 80 columns. Line wrapping is not meaningful for these files.
+  MD013: false
+  # Keep a Changelog repeats the same category heading in each release.
+  MD024:
+    siblings_only: true
