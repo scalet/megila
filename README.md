@@ -138,6 +138,7 @@ GitHub Pages estiver ligado à origem GitHub Actions, é
 responde, as páginas estão no repositório:
 
 - [Início](docs/index.md)
+- [Configuração](docs/configuracao.md)
 - [Ambiente de desenvolvimento](docs/dev/ambiente.md)
 - [Amostras de teste](docs/dev/amostras.md)
 - [Como escrever a documentação](docs/dev/docs.md)
@@ -163,7 +164,7 @@ O Megila é software livre sob a [licença MIT](LICENSE).
 Copyright (c) 2026 Renan Scalet.
 
 O [SupoClip](https://github.com/FujiwaraChoki/supoclip) é publicado sob
-a [GNU AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Ele só
+a [GNU AGPL-3.0](https://web.archive.org/web/20261018192956/https://www.gnu.org/licenses/agpl-3.0.html). Ele só
 inspira a ideia de cortes curtos a partir de um vídeo longo. Nenhum
 código, prompt, esquema, teste ou texto daquele repositório é copiado.
 Ler o código alheio para reproduzir a estrutura também fica de fora: a

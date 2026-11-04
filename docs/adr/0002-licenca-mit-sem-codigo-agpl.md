@@ -161,8 +161,9 @@ AGPL "que não faz parte do pacote".
 - O texto MIT do projeto está no arquivo `LICENSE`, na raiz.
 - A licença MIT está descrita em
   [opensource.org/license/mit](https://opensource.org/license/mit).
-- A GNU AGPL-3.0 está em
-  [gnu.org/licenses/agpl-3.0](https://www.gnu.org/licenses/agpl-3.0.html).
+- A GNU AGPL-3.0 está na
+  [cópia arquivada](https://web.archive.org/web/20261018192956/https://www.gnu.org/licenses/agpl-3.0.html)
+  de 18 de outubro de 2026 (gnu.org/licenses/agpl-3.0).
 - O [SupoClip](https://github.com/FujiwaraChoki/supoclip) publica o
   próprio código sob AGPL-3.0. Ele é referência de problema (cortes
   curtos), não de implementação.
