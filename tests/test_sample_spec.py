@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -19,7 +21,7 @@ import make_sample  # noqa: E402
 NARRATION_V1_SHA256 = "0c3609691f9cb3d8ee441815f3fd084b170b0ea122b59d6d0e5b8850f4be6475"
 
 
-def test_default_spec_is_inside_the_contract():
+def test_default_spec_is_inside_the_contract() -> None:
     spec = make_sample.DEFAULT_SPEC
     spec.validate()
     assert spec.text_version == 1
@@ -40,13 +42,13 @@ def test_default_spec_is_inside_the_contract():
 
 
 @pytest.mark.parametrize("duration_s", [30, 60])
-def test_duration_bounds_are_accepted(duration_s: int):
+def test_duration_bounds_are_accepted(duration_s: int) -> None:
     spec = replace(make_sample.DEFAULT_SPEC, duration_s=duration_s)
     spec.validate()
 
 
 @pytest.mark.parametrize("duration_s", [0, 29, 61, 120])
-def test_duration_outside_30_to_60_is_rejected(duration_s: int):
+def test_duration_outside_30_to_60_is_rejected(duration_s: int) -> None:
     spec = replace(make_sample.DEFAULT_SPEC, duration_s=duration_s)
     with pytest.raises(ValueError, match="duration_s"):
         spec.validate()
@@ -68,13 +70,15 @@ def test_duration_outside_30_to_60_is_rejected(duration_s: int):
         {"frame_rate": 0},
     ],
 )
-def test_spec_rejects_values_that_would_break_the_recipe(kwargs: dict):
+def test_spec_rejects_values_that_would_break_the_recipe(
+    kwargs: dict[str, Any],
+) -> None:
     spec = replace(make_sample.DEFAULT_SPEC, **kwargs)
     with pytest.raises(ValueError):
         spec.validate()
 
 
-def test_narration_v1_is_pinned_pt_br_text():
+def test_narration_v1_is_pinned_pt_br_text() -> None:
     raw = make_sample.TEXT_PATH.read_bytes()
     assert make_sample.sha256_file(make_sample.TEXT_PATH) == NARRATION_V1_SHA256
     assert b"\r" not in raw
@@ -90,7 +94,7 @@ def test_narration_v1_is_pinned_pt_br_text():
     assert narration.text.endswith("\n")
 
 
-def test_narration_parser_rejects_bad_files(tmp_path: Path):
+def test_narration_parser_rejects_bad_files(tmp_path: Path) -> None:
     cases = {
         "version: 1\nlanguage: pt-BR\nOlá.\n": "separator",
         "version: 1\nlanguage: en\n---\nOlá.\n": "pt-BR",
@@ -115,16 +119,24 @@ def test_narration_parser_rejects_bad_files(tmp_path: Path):
         make_sample.load_narration(bom)
 
 
-def test_commands_pin_bitexact_testsrc_and_voice():
+def test_commands_pin_bitexact_testsrc_and_voice() -> None:
     spec = make_sample.DEFAULT_SPEC
-    espeak = make_sample.build_espeak_command(Path("narration.txt"), Path("speech.wav"), spec)
-    ffmpeg = make_sample.build_ffmpeg_command(Path("speech.wav"), Path("clip.mkv"), spec)
+    espeak = make_sample.build_espeak_command(
+        Path("narration.txt"), Path("speech.wav"), spec
+    )
+    ffmpeg = make_sample.build_ffmpeg_command(
+        Path("speech.wav"), Path("clip.mkv"), spec
+    )
     assert espeak[:6] == ["espeak-ng", "-v", "pt-br+m3", "-s", "160", "-w"]
     assert espeak[-2:] == ["-f", "narration.txt"]
     assert ffmpeg[0] == "ffmpeg"
     assert ffmpeg.count("+bitexact") >= 2
-    assert "-map_metadata" in ffmpeg and ffmpeg[ffmpeg.index("-map_metadata") + 1] == "-1"
-    assert any(part.startswith("testsrc2=size=320x240:rate=25:duration=48:") for part in ffmpeg)
+    assert (
+        "-map_metadata" in ffmpeg and ffmpeg[ffmpeg.index("-map_metadata") + 1] == "-1"
+    )
+    assert any(
+        part.startswith("testsrc2=size=320x240:rate=25:duration=48:") for part in ffmpeg
+    )
     assert "threads=1" in ffmpeg[ffmpeg.index("-x264-params") + 1]
     assert "pcm_s16le" in ffmpeg
     assert ffmpeg[-2:] == ["matroska", "clip.mkv"]
@@ -133,7 +145,7 @@ def test_commands_pin_bitexact_testsrc_and_voice():
     assert "&&" not in joined and ";" not in joined
 
 
-def test_recipe_hash_is_stable_and_tracks_the_spec():
+def test_recipe_hash_is_stable_and_tracks_the_spec() -> None:
     first = make_sample.recipe_sha256(make_sample.DEFAULT_SPEC)
     second = make_sample.recipe_sha256(make_sample.DEFAULT_SPEC)
     assert first == second
@@ -142,17 +154,19 @@ def test_recipe_hash_is_stable_and_tracks_the_spec():
     assert make_sample.recipe_sha256(other) != first
 
 
-def test_cache_path_stays_inside_the_cache_and_is_gitignored(tmp_path: Path):
+def test_cache_path_stays_inside_the_cache_and_is_gitignored(tmp_path: Path) -> None:
     path = make_sample.output_path(tmp_path, make_sample.DEFAULT_SPEC)
     assert path.parent == tmp_path.resolve()
     assert path.name == "megila_sintetico_v1_320x240_48s.mkv"
     gitignore = (_ASSETS / ".gitignore").read_text(encoding="utf-8")
     assert "cache/" in gitignore
-    default_output = make_sample.output_path(make_sample.CACHE_DIR, make_sample.DEFAULT_SPEC)
+    default_output = make_sample.output_path(
+        make_sample.CACHE_DIR, make_sample.DEFAULT_SPEC
+    )
     assert default_output.parent == make_sample.CACHE_DIR.resolve()
 
 
-def test_licenses_cover_text_voice_and_tools():
+def test_licenses_cover_text_voice_and_tools() -> None:
     text = (_ASSETS / "LICENSES.md").read_text(encoding="utf-8")
     for needle in (
         "narracao_ptbr_v1.txt",
@@ -168,7 +182,7 @@ def test_licenses_cover_text_voice_and_tools():
         assert needle in text
 
 
-def test_media_mismatches_accept_a_matching_probe_and_flag_drift():
+def test_media_mismatches_accept_a_matching_probe_and_flag_drift() -> None:
     spec = make_sample.DEFAULT_SPEC
     good = make_sample.MediaInfo(
         duration_s=48.0,
@@ -190,8 +204,8 @@ def test_media_mismatches_accept_a_matching_probe_and_flag_drift():
 
 def test_print_spec_does_not_need_external_tools(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-):
-    monkeypatch.setattr(make_sample.shutil, "which", lambda _name: None)
+) -> None:
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
     assert make_sample.main(["--print-spec"]) == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["duration_s"] == 48
@@ -200,7 +214,9 @@ def test_print_spec_does_not_need_external_tools(
     assert payload["voice"] == "pt-br+m3"
 
 
-def test_generate_reports_missing_tools(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-    monkeypatch.setattr(make_sample.shutil, "which", lambda _name: None)
+def test_generate_reports_missing_tools(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
     with pytest.raises(make_sample.MissingToolsError, match="espeak-ng"):
         make_sample.generate_sample(cache_dir=tmp_path)

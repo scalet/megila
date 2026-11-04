@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "total": 100.0,
+  "core": 100.0,
+  "packages": {
+    "megila.config": 100.0,
+    "megila.jobs": null,
+    "megila.plugins": null,
+    "megila.stages": null
+  }
+}

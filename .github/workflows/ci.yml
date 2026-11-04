@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.12"
+          - "3.13"
+    permissions:
+      contents: read
+      actions: write
+    env:
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
+      HUGGINGFACE_HUB_CACHE: ${{ github.workspace }}/.cache/huggingface/hub
+      XDG_CACHE_HOME: ${{ github.workspace }}/.cache
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Cache static ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/megila/ffmpeg
+          key: megila-ffmpeg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/ci/ensure-media-tools.sh') }}
+
+      - name: Cache model weights
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/huggingface
+            .cache/whisper
+            model_cache
+          key: megila-models-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            megila-models-${{ runner.os }}-
+
+      - name: Cache pre-commit
+        if: matrix.python-version == '3.12'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Prepare model cache directories
+        run: |
+          set -euo pipefail
+          mkdir -p "${HF_HOME}/hub" "${XDG_CACHE_HOME}/whisper" model_cache
+          touch "${HF_HOME}/.keep" model_cache/.keep
+
+      # apt ffmpeg on Ubuntu 24.04 has libx264 and libass and lacks libvmaf.
+      # ensure-media-tools.sh installs espeak-ng and, when the probe fails,
+      # a pinned GPL static ffmpeg. The binary is not committed.
+      - name: Install ffmpeg and espeak-ng
+        run: bash .github/ci/ensure-media-tools.sh
+
+      - name: Require libx264, libass, and libvmaf
+        run: |
+          set -euo pipefail
+          command -v ffmpeg
+          command -v ffprobe
+          command -v espeak-ng
+          ffmpeg -hide_banner -encoders | awk '$2 == "libx264" { found = 1 } END { exit found ? 0 : 1 }'
+          ffmpeg -hide_banner -filters | awk '$2 == "ass" { found = 1 } END { exit found ? 0 : 1 }'
+          ffmpeg -hide_banner -filters | awk '$2 == "libvmaf" { found = 1 } END { exit found ? 0 : 1 }'
+          espeak-ng --voices | awk '$2 == "pt-br" { found = 1 } END { exit found ? 0 : 1 }'
+
+      - name: Install the package
+        run: python -m pip install -e ".[dev]"
+
+      - name: Ruff
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+
+      - name: Mypy
+        run: python -m mypy
+
+      - name: Pre-commit
+        if: matrix.python-version == '3.12'
+        run: pre-commit run --all-files
+
+      - name: Pytest
+        run: >
+          python -m pytest
+          --cov-report=json:${{ runner.temp }}/coverage.json
+          --junitxml=${{ runner.temp }}/pytest.xml
+
+      - name: Coverage baseline from main
+        run: |
+          set -euo pipefail
+          reference="${RUNNER_TEMP}/coverage-baseline-main.json"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            git fetch --no-tags --depth=1 origin "${GITHUB_BASE_REF}"
+            if git cat-file -e "origin/${GITHUB_BASE_REF}:.github/coverage-baseline.json"; then
+              git show "origin/${GITHUB_BASE_REF}:.github/coverage-baseline.json" > "${reference}"
+            else
+              cp .github/coverage-baseline.json "${reference}"
+            fi
+          else
+            cp .github/coverage-baseline.json "${reference}"
+          fi
+          echo "COVERAGE_REFERENCE=${reference}" >> "${GITHUB_ENV}"
+
+      - name: Check coverage
+        run: |
+          python .github/ci/coverage_gate.py \
+            --coverage "${{ runner.temp }}/coverage.json" \
+            --baseline .github/coverage-baseline.json \
+            --reference "${COVERAGE_REFERENCE}" \
+            --junit "${{ runner.temp }}/pytest.xml"
+
+  ci:
+    name: ci
+    needs: python
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require Python 3.12 and 3.13
+        run: |
+          set -euo pipefail
+          echo "python=${{ needs.python.result }}"
+          test "${{ needs.python.result }}" = "success"
