@@ -121,9 +121,9 @@ O checklist pede testes, documentação, changelog e licenças.
   `Deprecated`, `Removed`, `Fixed` ou `Security`). O formato é
   [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). O link do
   rodapé permanece.
-- `README.md` e `README.en.md`, na raiz, são atualizados juntos quando a
-  mudança os alcança. Os dois dizem o mesmo: um em português e outro em
-  inglês.
+- [`README.md`](README.md) e [`README.en.md`](README.en.md), na raiz, são
+  atualizados juntos quando a mudança os alcança. Os dois dizem o mesmo:
+  um em português e outro em inglês.
 - A licença segue a seção abaixo.
 
 ## Licenças
