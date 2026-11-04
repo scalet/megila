@@ -1,0 +1,6 @@
+title: Decisões arquiteturais
+nav:
+  - index.md
+  - glob: "0*.md"
+    ignore_no_matches: false
+  - template.md

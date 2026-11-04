@@ -56,5 +56,6 @@ npx --yes markdownlint-cli@0.50.0 \
   --config docs/adr/.markdownlint.yaml "docs/adr/**/*.md"
 ```
 
-A configuração está em [`.markdownlint.yaml`](.markdownlint.yaml).
+A configuração está em
+[`.markdownlint.yaml`](https://github.com/scalet/megila/blob/main/docs/adr/.markdownlint.yaml).
 O comando deve terminar sem apontar erro nestes arquivos.

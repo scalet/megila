@@ -96,7 +96,8 @@ lugar.
 
 ## Licenças
 
-O detalhe está em [`tests/assets/LICENSES.md`](../../tests/assets/LICENSES.md).
+O detalhe está em
+[`tests/assets/LICENSES.md`](https://github.com/scalet/megila/blob/main/tests/assets/LICENSES.md).
 
 - O texto é original e segue a MIT do repositório.
 - eSpeak NG e os dados da voz pt-BR são GPL-3.0-or-later. Não são copiados para o git.

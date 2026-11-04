@@ -1,8 +1,12 @@
+# MkDocs build output
+/site/
+
 # Bytecode and caches
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
 
 # Packaging
 .Python

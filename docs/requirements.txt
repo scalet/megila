@@ -1,0 +1,8 @@
+# Dependências exclusivas do site de documentação.
+# Não fazem parte do pacote Megila e não entram no pyproject.
+#
+# Licenças diretas: MIT (mkdocs-material, mkdocs-awesome-nav).
+# A árvore transitiva fica em licenças permissivas compatíveis com MIT
+# (MIT, BSD, Apache-2.0, ISC, MPL-2.0, PSF, Unlicense). Sem copyleft forte.
+mkdocs-material==9.8.0
+mkdocs-awesome-nav==3.3.0

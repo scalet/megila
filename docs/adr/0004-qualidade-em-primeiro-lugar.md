@@ -243,11 +243,11 @@ GPU receberia um perfil menor.
 
 ## Mais informações
 
-- O guia de CRF do x264 está em
-  [trac.ffmpeg.org/wiki/Encode/H.264](https://trac.ffmpeg.org/wiki/Encode/H.264).
-  CRF 18 é citado ali como visualmente sem perda na prática; CRF 19 é
-  o degrau adotado por esta ADR, ainda no topo da escala e menos
-  inchado do que 18.
+- O guia de CRF do x264 está na
+  [cópia de 2 de janeiro de 2025 do wiki do FFmpeg](https://web.archive.org/web/20250102121452/https://trac.ffmpeg.org/wiki/Encode/H.264)
+  (`Encode/H.264`). CRF 18 é citado ali como visualmente sem perda na
+  prática; CRF 19 é o degrau adotado por esta ADR, ainda no topo da
+  escala e menos inchado do que 18.
 - O [VMAF](https://github.com/Netflix/vmaf) é a métrica do gate de
   vídeo. A nota vai de 0 a 100; maior é melhor. O piso padrão 90
   reprova encode quebrado, como escala errada ou quadro perdido, e não
