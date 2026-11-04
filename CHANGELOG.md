@@ -22,5 +22,14 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   decisões novas (M0-04).
 - Site de documentação com MkDocs Material, build estrito nos pull requests
   e publicação no GitHub Pages em `https://scalet.github.io/megila/` (M0-05).
+- CI no GitHub Actions: ruff, mypy estrito e pytest com cobertura em Python
+  3.12 e 3.13, com ffmpeg (libass e libvmaf) e espeak-ng para o clipe
+  sintético (M0-06).
+
+### Fixed
+
+- ruff, mypy e `pre-commit run --all-files` voltam a passar: tipos do clipe
+  sintético, tags YAML do `mkdocs.yml`, e o hook de mypy importa pydantic,
+  pydantic-settings e hypothesis (M0-06).
 
 [Unreleased]: https://github.com/scalet/megila/commits/main
