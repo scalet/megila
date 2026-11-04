@@ -1,0 +1,82 @@
+name: Relato de erro
+description: Algo no Megila não funciona como o esperado.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Confira as [issues abertas](https://github.com/scalet/megila/issues) antes de abrir outra sobre o mesmo caso.
+
+        Uma vulnerabilidade segue a [política de segurança](https://github.com/scalet/megila/blob/main/SECURITY.md), em privado, e fica fora deste formulário.
+
+        Esta conversa segue o [Código de Conduta](https://github.com/scalet/megila/blob/main/CODE_OF_CONDUCT.md).
+  - type: textarea
+    id: descricao
+    attributes:
+      label: O que aconteceu
+      description: Descreva o erro e o impacto.
+      placeholder: O comando encerra com código 1 ao processar um arquivo...
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+      description: Passos mínimos, com o comando exato.
+      placeholder: |
+        1. Ative o ambiente e rode...
+        2. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Comportamento esperado
+      description: O que deveria ter acontecido.
+    validations:
+      required: true
+  - type: input
+    id: versao
+    attributes:
+      label: Versão ou commit
+      description: Saída de `megila --version`, ou o hash do commit.
+      placeholder: megila 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: python
+    attributes:
+      label: Versão do Python
+      options:
+        - "3.12"
+        - "3.13"
+        - "3.14"
+        - Outra
+    validations:
+      required: true
+  - type: dropdown
+    id: sistema
+    attributes:
+      label: Sistema operacional
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Saída relevante. O GitHub formata este campo como código.
+      render: shell
+  - type: checkboxes
+    id: conduta
+    attributes:
+      label: Código de Conduta
+      description: O relato segue o Código de Conduta do repositório.
+      options:
+        - label: Li o [Código de Conduta](https://github.com/scalet/megila/blob/main/CODE_OF_CONDUCT.md).
+          required: true

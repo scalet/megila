@@ -1,0 +1,41 @@
+name: Pedido de funcionalidade
+description: Sugira uma capacidade nova para o pipeline.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Confira as [issues abertas](https://github.com/scalet/megila/issues) antes de abrir outra sobre a mesma ideia.
+
+        O Megila é licença MIT. A política de código e de dependências está na [ADR 0002](https://github.com/scalet/megila/blob/main/docs/adr/0002-licenca-mit-sem-codigo-agpl.md).
+
+        Uma decisão durável vira uma ADR, a partir de [docs/adr/template.md](https://github.com/scalet/megila/blob/main/docs/adr/template.md). O guia está em [CONTRIBUTING.md](https://github.com/scalet/megila/blob/main/CONTRIBUTING.md).
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema
+      description: Que situação o pipeline ainda não cobre?
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Proposta
+      description: Como a capacidade deve se comportar.
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas
+      description: Outros caminhos considerados.
+  - type: checkboxes
+    id: confirmacao
+    attributes:
+      label: Confirmação
+      options:
+        - label: Li o [Código de Conduta](https://github.com/scalet/megila/blob/main/CODE_OF_CONDUCT.md).
+          required: true
+        - label: A proposta respeita a licença MIT e a [ADR 0002](https://github.com/scalet/megila/blob/main/docs/adr/0002-licenca-mit-sem-codigo-agpl.md).
+          required: true
