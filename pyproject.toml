@@ -62,7 +62,7 @@ known-first-party = ["megila"]
 python_version = "3.12"
 strict = true
 warn_unused_configs = true
-mypy_path = "src"
+mypy_path = "src:.github/ci:tests/assets"
 explicit_package_bases = true
 files = ["src", "tests"]
 
