@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -49,6 +50,7 @@ from megila.doctor.host import PsutilHost, brand_from_cpuinfo, read_cpu_brand
 from megila.doctor.render import render_json, render_plain
 
 runner = CliRunner()
+_ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
 _GIB = 1024**3
 _FILTERS = """\
@@ -676,9 +678,11 @@ def test_plain_cli_and_help() -> None:
     assert "doctor" in result.stdout
     help_result = runner.invoke(app, ["doctor", "--help"])
     assert help_result.exit_code == 0
-    assert "--json" in help_result.stdout
-    assert "--source" in help_result.stdout
-    assert "--backup" in help_result.stdout
+    # CI sets FORCE_COLOR, so Rich can wrap an option name in escape codes.
+    plain = _ANSI.sub("", help_result.stdout)
+    assert "--json" in plain
+    assert "--source" in plain
+    assert "--backup" in plain
 
 
 def test_source_flag_does_not_read_settings(
