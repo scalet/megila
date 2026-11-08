@@ -30,15 +30,15 @@ Existe é o que roda hoje. Decidido e planejado ainda não rodam. A diferença
 ## O que existe hoje
 
 A versão do pacote é 0.1.0. As dependências de runtime são Typer,
-pydantic, pydantic-settings, psutil, keyring e structlog. O comando
-`megila --version` (e `python -m megila --version`) imprime a versão e
-encerra. `megila doctor` confere o ffmpeg, a máquina e o disco.
-`megila keys` grava, lista e apaga a chave de um provedor. Não há
+pydantic, pydantic-settings, psutil, keyring, structlog, SQLAlchemy e
+Alembic. O comando `megila --version` (e `python -m megila --version`)
+imprime a versão e encerra. `megila doctor` confere o ffmpeg, a máquina e
+o disco. `megila keys` grava, lista e apaga a chave de um provedor. Não há
 subcomando de job.
 
-Os subpacotes abaixo são importáveis. O arquivo de cada um descreve a
-fronteira; não há fila, etapa, API, provedor nem plugin em execução. Não
-há aplicação React no repositório.
+Os subpacotes abaixo são importáveis. A configuração e o esquema da fila
+já rodam. O claim do job, as etapas, a API, o provedor e o plugin ainda
+não executam. Não há aplicação React no repositório.
 
 | Módulo | Estado | Lugar no mapa |
 | --- | --- | --- |
@@ -48,12 +48,12 @@ há aplicação React no repositório.
 | `megila.config` | Existe | Caminhos, perfis e modelo de texto. Sem segredo no arquivo. |
 | `megila.secrets` | Existe | Chave no keyring. Sem backend, não grava em arquivo. |
 | `megila.jobs` | Decidido | Ciclo de vida do job. Contrato espalhado pelas ADRs 0003 a 0006. |
-| `megila.jobs.queue` | Decidido | Fila SQLite com WAL. [ADR 0003](../adr/0003-fila-sqlite-wal.md). |
+| `megila.jobs.queue` | Existe | Esquema SQLite, pragmas e migrações. O claim ainda não roda. [Dados](dados.md). |
 | `megila.stages` | Decidido | Etapas. O pacote cita ingerir, transcrever, overlay, encode e gate. |
 | `megila.providers` | Decidido | Porta de texto. O pacote nomeia Ollama e llama.cpp no caminho local. |
 | `megila.plugins` | Planejado | Registro de etapas, provedores e notificadores. |
 | `megila.notify` | Planejado | Saída de aviso. O pacote reserva o Telegram. |
-| `megila.storage` | Decidido | Arquivo local e backup opcional com rclone. |
+| `megila.storage` | Existe | Escrita atômica de um arquivo. O backup rclone segue decidido e ainda não roda. |
 
 Os testes já sabem gerar um clipe sintético, descrito em
 [Amostras de teste](../dev/amostras.md). Esse clipe não é uma etapa do
@@ -168,6 +168,12 @@ devolve artefatos. O processo local confere o hash e grava o checkpoint.
 normativo, as pragmas e os testes de confirmação estão lá. Esta seção
 não é uma segunda cópia: se divergir, vale a ADR.
 
+O código já abre o banco, recusa filesystem de rede reconhecido, aplica
+as pragmas e migra o esquema com Alembic. O arquivo é
+`<data_dir>/megila.sqlite3`. As tabelas estão em [Dados](dados.md). O
+claim, o sinal de vida e a ida a `dead` descritos abaixo são o contrato.
+Ainda não rodam.
+
 O banco fica num filesystem local, no diretório de dados do Megila. Na
 abertura, um tipo reconhecível como rede ou como FUSE de nuvem (`nfs`,
 `cifs`, `smb`, `fuse.rclone` e equivalentes) faz o processo recusar
@@ -239,9 +245,12 @@ principal durante uma escrita não é backup.
 
 ### Disjuntor
 
-**Planejado.** Não há ADR nem módulo. No mapa, a caixa "Rede opcional"
-é o lugar deste esboço. Disjuntor aqui é o circuit breaker das chamadas
-de rede opcionais: adaptador de texto externo, yt-dlp, Telegram e rclone.
+**Planejado** como comportamento. Não há ADR. A tabela `breakers` já
+está no banco da fila para guardar nome, estado, contagem e
+`retry_after`. Nada abre nem fecha o circuito. No mapa, a caixa "Rede
+opcional" é o lugar deste esboço. Disjuntor aqui é o circuit breaker
+das chamadas de rede opcionais: adaptador de texto externo, yt-dlp,
+Telegram e rclone.
 
 Quando a dependência falha em sequência, o circuito abre e a chamada
 seguinte falha na hora, com erro claro, em vez de ficar pendurada até
@@ -250,9 +259,9 @@ esgotar o tempo. Essa falha continua sendo erro do job, no contrato da
 infinito, não apaga a DLQ e não promove status. ffmpeg, faster-whisper
 e o motor de texto local não dependem dele.
 
-Limiares, meia-abertura e onde o estado do circuito mora não estão
-decididos. Entram com a implementação. Se virarem política durável,
-entram numa ADR. O estado do disjuntor não é segredo.
+O lugar do estado é a tabela `breakers`. A política que abre o circuito,
+o limiar efetivo e a meia-abertura ainda não rodam. Se virarem política
+durável, entram numa ADR. O estado do disjuntor não é segredo.
 
 ## Fluxo de ponta a ponta
 

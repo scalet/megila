@@ -97,6 +97,8 @@ O que já está na árvore:
   pytest e pre-commit.
 - O site MkDocs, as ADRs 0001 a 0006 e o clipe sintético de teste em
   pt-BR.
+- O banco da fila em SQLite, com WAL e migrações Alembic, em
+  `src/megila/jobs/queue/`. O claim do job ainda não roda.
 - O Código de Conduta, a política de segurança e o changelog.
 
 A CLI informa a versão, confere o ffmpeg, a máquina e o disco com
@@ -148,6 +150,7 @@ responde, as páginas estão no repositório:
 - [Ambiente de desenvolvimento](docs/dev/ambiente.md)
 - [Amostras de teste](docs/dev/amostras.md)
 - [Como escrever a documentação](docs/dev/docs.md)
+- [Dados da fila](docs/arquitetura/dados.md)
 - [Decisões arquiteturais](docs/adr/index.md)
 
 As ADRs estão em português, no formato MADR:

@@ -39,12 +39,14 @@ repos:
         # hypothesis, which the tests import. Keep the floors aligned with
         # pyproject.toml.
         additional_dependencies:
+          - alembic>=1.14
           - hypothesis>=6.100
           - keyring>=25.6
           - psutil>=6.1
           - pydantic>=2.14
           - pydantic-settings>=2.16
           - pytest>=8.3
+          - sqlalchemy>=2.0.36
           - structlog>=25.1
           - types-psutil>=7.0
           - typer>=0.15.1

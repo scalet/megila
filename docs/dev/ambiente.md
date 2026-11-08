@@ -21,7 +21,7 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-O extra `dev` instala pytest, pytest-cov, ruff, mypy, pre-commit, hypothesis e os stubs `types-psutil` (Apache-2.0, só para o mypy). As dependências de runtime são psutil (BSD-3-Clause), keyring, structlog, pydantic, pydantic-settings e Typer (MIT). O `megila doctor` usa o psutil para ler a máquina. Os requisitos e o comando estão em [Instalação](../instalacao.md).
+O extra `dev` instala pytest, pytest-cov, ruff, mypy, pre-commit, hypothesis e os stubs `types-psutil` (Apache-2.0, só para o mypy). As dependências de runtime são psutil (BSD-3-Clause), keyring, structlog, SQLAlchemy, Alembic, pydantic, pydantic-settings e Typer (MIT). O `megila doctor` usa o psutil para ler a máquina. Os requisitos e o comando estão em [Instalação](../instalacao.md).
 
 Ative os ganchos do Git uma vez por clone:
 
@@ -63,7 +63,7 @@ O pacote usa layout `src` (`src/megila/`). Os testes importam o código instalad
 | `megila.config` | Configuração de execução: caminhos, modelo e provedor. A chave de API não entra no arquivo. |
 | `megila.secrets` | Chave do provedor no keyring do sistema. Sem backend, `megila keys` recusa gravar. |
 | `megila.jobs` | Ciclo de vida dos trabalhos. |
-| `megila.jobs.queue` | Fila durável em SQLite (WAL), com lease (reserva temporária) e heartbeat (sinal de vida). Pacote separado para a implementação ficar junto da interface. |
+| `megila.jobs.queue` | Fila durável em SQLite com WAL, pragmas de durabilidade e migrações Alembic. O esquema guarda posse, sinal de vida, prioridade e retentativa. O claim do job ainda não está nesta árvore. |
 | `megila.stages` | Etapas do pipeline: ingerir, transcrever, sobrepor legendas, codificar e medir qualidade. |
 | `megila.providers` | Provedores de IA plugáveis. O caminho padrão é Ollama ou llama.cpp na máquina; uma API externa usa a mesma interface. |
 | `megila.plugins` | Pontos de extensão para registrar etapas, provedores e notificadores. |

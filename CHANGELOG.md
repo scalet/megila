@@ -22,6 +22,11 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   decisões novas (M0-04).
 - Site de documentação com MkDocs Material, build estrito nos pull requests
   e publicação no GitHub Pages em `https://scalet.github.io/megila/` (M0-05).
+- Banco SQLite da fila com WAL, pragmas de durabilidade e migrações Alembic
+  (`jobs`, `steps`, `chunks`, `events`, `artifacts`, `reviews`, `qa_checks`,
+  `profiles`, `breakers`, `workers`) (M0-11). A primeira migração é
+  serializada entre processos, e o banco é recusado em NFS, SMB, rclone,
+  sshfs, ceph e glusterfs.
 - Comandos `megila keys set`, `list` e `delete` para guardar a chave do
   provedor no chaveiro do sistema, com logs JSON com mascaramento (M0-10).
 - Comando `megila doctor`: confere ffmpeg (libass e libvmaf), CPU, memória,
