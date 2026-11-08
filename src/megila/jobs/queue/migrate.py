@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 from alembic import command, context
@@ -20,7 +22,33 @@ from megila.jobs.queue.engine import (
 )
 from megila.jobs.queue.models import Base
 
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - Windows has no fcntl
+    fcntl = None  # type: ignore[assignment]
+
 _MIGRATIONS = Path(__file__).resolve().parent / "migrations"
+
+
+@contextmanager
+def _migration_lock(database: Path) -> Iterator[None]:
+    """Serialize migrations of one database across processes.
+
+    Two processes that open a new database together would both run the
+    initial revision and collide on ``CREATE TABLE`` or on ``alembic_version``.
+    The lock is an advisory ``flock`` on a sidecar file. Without ``fcntl``
+    (Windows) migrations are not serialized.
+    """
+    if fcntl is None:  # pragma: no cover - Windows has no fcntl
+        yield
+        return
+    lock_path = database.with_name(f"{database.name}.migrate.lock")
+    with lock_path.open("a") as handle:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle, fcntl.LOCK_UN)
 
 
 def upgrade_database(path: Path, revision: str = "head", *, sql: bool = False) -> None:
@@ -34,7 +62,11 @@ def upgrade_database(path: Path, revision: str = "head", *, sql: bool = False) -
         DatabaseLocationError: ``path`` is on a refused filesystem.
     """
     absolute = prepare_database_path(path)
-    command.upgrade(_config(absolute), revision, sql=sql)
+    if sql:
+        command.upgrade(_config(absolute), revision, sql=True)
+        return
+    with _migration_lock(absolute):
+        command.upgrade(_config(absolute), revision)
 
 
 def downgrade_database(path: Path, revision: str = "base") -> None:
@@ -56,9 +88,11 @@ def downgrade_database(path: Path, revision: str = "base") -> None:
 def current_revision(path: Path) -> str | None:
     """Return the Alembic revision stamped on ``path``.
 
-    ``None`` means the file has no revision row. Opening a missing file
-    creates an empty SQLite database and returns ``None``.
+    ``None`` means the file has no revision row, or that the file does not
+    exist. A missing file is not created.
     """
+    if not path.expanduser().resolve().is_file():
+        return None
     engine = create_db_engine(path)
     try:
         return _read_revision(engine)

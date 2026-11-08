@@ -66,11 +66,16 @@ class TextModelSettings(BaseModel):
     )
     keyring_service: str = Field(
         default="megila",
-        description="Nome do serviço no chaveiro do sistema. Não é o segredo.",
+        description=(
+            "Serviço no chaveiro do sistema. O padrão é `megila`. Não é o segredo."
+        ),
     )
     keyring_account: str | None = Field(
         default=None,
-        description="Nome da conta no chaveiro do sistema. Não é o segredo.",
+        description=(
+            "Conta no chaveiro, o nome passado a `megila keys set`. Sem valor, "
+            "vale o nome do provedor. Não é o segredo."
+        ),
     )
 
     @field_validator("provider")

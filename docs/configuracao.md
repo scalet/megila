@@ -13,10 +13,11 @@ ambiente substitui o mesmo campo no `config.toml`. Um valor
 definido só no arquivo substitui o padrão. Os outros campos do
 arquivo permanecem.
 
-A chave de API não entra em nenhuma camada. Ela fica no chaveiro
-do sistema operacional, no serviço `megila`, como na
-[ADR 0005](adr/0005-ia-plugavel-e-keyring.md). O modelo guarda o
-nome do serviço e o da conta, não o segredo. Se o segredo
+A chave de API não entra em nenhuma camada. O modelo guarda
+`keyring_service` e `keyring_account`, que são nomes, não o
+segredo. Quem grava a chave usa `megila keys`. O contrato desses
+campos está na seção [Chaveiro](#chaveiro) e na
+[ADR 0005](adr/0005-ia-plugavel-e-keyring.md). Se o segredo
 aparecer na configuração, o programa recusa o arquivo, a
 variável ou o argumento e não repete o valor.
 
@@ -79,8 +80,8 @@ mesmo formato. O campo `video_prompt` da chave `aula` é
 | `MEGILA_TEXT_MODEL__PROVIDER` | `str` | `local` | Nome do provedor. `local` não abre conexão de rede. |
 | `MEGILA_TEXT_MODEL__MODEL` | `str` | `""` | Identificador do modelo escolhido por quem opera. |
 | `MEGILA_TEXT_MODEL__BASE_URL` | `Union[str, None]` | `None` | URL base compatível com a API OpenAI, sem usuário, senha, query ou fragmento. |
-| `MEGILA_TEXT_MODEL__KEYRING_SERVICE` | `str` | `megila` | Nome do serviço no chaveiro do sistema. Não é o segredo. |
-| `MEGILA_TEXT_MODEL__KEYRING_ACCOUNT` | `Union[str, None]` | `None` | Nome da conta no chaveiro do sistema. Não é o segredo. |
+| `MEGILA_TEXT_MODEL__KEYRING_SERVICE` | `str` | `megila` | Serviço no chaveiro do sistema. O padrão é `megila`. Não é o segredo. |
+| `MEGILA_TEXT_MODEL__KEYRING_ACCOUNT` | `Union[str, None]` | `None` | Conta no chaveiro, o nome passado a `megila keys set`. Sem valor, vale o nome do provedor. Não é o segredo. |
 | `MEGILA_PROFILES__DEFAULT__VIDEO_PROMPT` | `str` | `""` | Instruções do plano de overlay. Não é segredo. |
 | `MEGILA_PROFILES__DEFAULT__SUMMARY_PROMPT` | `str` | `""` | Instruções que o resumo deve seguir, e nada além delas. |
 | `MEGILA_PROFILES__DEFAULT__GLOSSARY` | `dict[str, str]` | `{}` | Termo mapeado para a forma preferida. |
@@ -152,6 +153,22 @@ O erro é legível e não repete o valor:
 
 O glossário é texto do perfil. Um termo chamado `token` é uma palavra,
 não um campo de credencial. Ver [Perfis](perfis.md).
+
+## Chaveiro
+
+`keyring_service` é o serviço no chaveiro. O padrão é `megila`.
+`keyring_account` é a conta. Ela é o mesmo nome passado a
+`megila keys set`. Com `keyring_account = "openai"`, o comando é
+`megila keys set openai`.
+
+O comando não aceita a chave como argumento. O programa pede o valor
+num prompt oculto. `megila keys list` mostra só os nomes dos
+provedores. `megila keys delete` apaga uma conta.
+
+Sem um backend de chaveiro utilizável, `megila keys` recusa gravar a
+chave. O Megila não cai para arquivo, variável de ambiente nem SQLite,
+conforme a [ADR 0005](adr/0005-ia-plugavel-e-keyring.md). O mascaramento
+do log está em [Segurança](seguranca.md).
 
 ## Escrita atômica
 

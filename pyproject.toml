@@ -22,9 +22,17 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
   "alembic>=1.14",
+  # keyring is MIT. On Linux it also installs SecretStorage (BSD-3-Clause),
+  # jeepney (MIT), jaraco.* (MIT), more-itertools (MIT), cryptography
+  # (Apache-2.0 OR BSD-3-Clause), cffi (MIT-0), and pycparser (BSD-3-Clause).
+  # structlog is MIT OR Apache-2.0. All of these are on the ADR 0002 list;
+  # MIT-0 is MIT with the attribution clause removed.
+  "keyring>=25.6",
+  "psutil>=6.1",
   "pydantic>=2.14",
   "pydantic-settings>=2.16",
   "sqlalchemy>=2.0.36",
+  "structlog>=25.1",
   "typer>=0.15.1",
 ]
 
@@ -36,6 +44,7 @@ dev = [
   "pytest>=8.3",
   "pytest-cov>=6.0",
   "ruff>=0.8",
+  "types-psutil>=7.0",
 ]
 
 [project.scripts]
@@ -64,7 +73,7 @@ known-first-party = ["megila"]
 python_version = "3.12"
 strict = true
 warn_unused_configs = true
-mypy_path = "src"
+mypy_path = "src:.github/ci:tests/assets"
 explicit_package_bases = true
 files = ["src", "tests"]
 

@@ -310,3 +310,12 @@ def test_open_database_migrates_and_sets_pragmas(
         engine.dispose()
     assert "jobs" in names
     assert current_revision(data_dir / "megila.sqlite3") == "0001_initial"
+
+
+def test_current_revision_of_a_missing_file_does_not_create_it(
+    tmp_path: Path,
+) -> None:
+    missing = tmp_path / "absent" / "megila.sqlite3"
+    assert current_revision(missing) is None
+    assert not missing.exists()
+    assert not missing.parent.exists()

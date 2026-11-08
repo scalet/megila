@@ -45,6 +45,11 @@ coverage.xml
 !.env.example
 keys/
 secrets/
+# The keyring package is source, not a secret dump.
+!src/megila/secrets/
+!src/megila/secrets/**
+src/megila/secrets/**/__pycache__/
+src/megila/secrets/**/*.pyc
 secrets.*
 *.pem
 *.key

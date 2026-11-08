@@ -69,7 +69,8 @@ def prepare_database_path(path: Path) -> Path:
     not written to.
 
     Raises:
-        DatabaseLocationError: The filesystem type is NFS, SMB/CIFS, or rclone.
+        DatabaseLocationError: The filesystem type is a refused network or
+            FUSE filesystem (NFS, SMB/CIFS, rclone, sshfs, ceph, glusterfs).
     """
     absolute = path.expanduser().resolve()
     parent = absolute.parent
@@ -80,7 +81,7 @@ def prepare_database_path(path: Path) -> Path:
         raise DatabaseLocationError(
             f"Refusing to open {absolute} on filesystem type {fstype!r}. "
             "The queue database must live on a local disk, not on nfs, "
-            "cifs, smb, or fuse.rclone."
+            "cifs, smb, sshfs, ceph, glusterfs, or fuse.rclone."
         )
     parent.mkdir(parents=True, exist_ok=True)
     return absolute

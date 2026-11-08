@@ -29,9 +29,11 @@ Existe é o que roda hoje. Decidido e planejado ainda não rodam. A diferença
 
 ## O que existe hoje
 
-A versão do pacote é 0.1.0. As dependências de runtime incluem o Typer,
-o Pydantic, o SQLAlchemy e o Alembic. O comando `megila --version` (e
-`python -m megila --version`) imprime a versão e encerra. Não há
+A versão do pacote é 0.1.0. As dependências de runtime são Typer,
+pydantic, pydantic-settings, psutil, keyring, structlog, SQLAlchemy e
+Alembic. O comando `megila --version` (e `python -m megila --version`)
+imprime a versão e encerra. `megila doctor` confere o ffmpeg, a máquina e
+o disco. `megila keys` grava, lista e apaga a chave de um provedor. Não há
 subcomando de job.
 
 Os subpacotes abaixo são importáveis. A configuração e o esquema da fila
@@ -40,9 +42,11 @@ não executam. Não há aplicação React no repositório.
 
 | Módulo | Estado | Lugar no mapa |
 | --- | --- | --- |
-| `megila.cli` | Existe | Linha de comando. Hoje só a versão. |
+| `megila.cli` | Existe | Linha de comando. Hoje `--version`, `-V`, `doctor` e `keys`. |
+| `megila.doctor` | Existe | Conferência da máquina: ffmpeg, CPU, RAM, disco, GPU, sensores e aviso de backup no mesmo disco. |
 | `megila.api` | Planejado | HTTP com FastAPI, chamando o mesmo núcleo da CLI. |
-| `megila.config` | Existe | Configuração em camadas e perfis. Sem segredo no arquivo. |
+| `megila.config` | Existe | Caminhos, perfis e modelo de texto. Sem segredo no arquivo. |
+| `megila.secrets` | Existe | Chave no keyring. Sem backend, não grava em arquivo. |
 | `megila.jobs` | Decidido | Ciclo de vida do job. Contrato espalhado pelas ADRs 0003 a 0006. |
 | `megila.jobs.queue` | Existe | Esquema SQLite, pragmas e migrações. O claim ainda não roda. [Dados](dados.md). |
 | `megila.stages` | Decidido | Etapas. O pacote cita ingerir, transcrever, overlay, encode e gate. |
@@ -117,9 +121,14 @@ yt-dlp, adaptador de texto externo, Telegram e rclone.
 
 ### CLI
 
-**Existe** o programa Typer, com `--version` e `-V`. **Planejado** o
-restante da linha de comando: submeter um job, consultar o status e
-apontar o diretório de saída. A CLI chama o mesmo núcleo que a API.
+**Existe** o programa Typer, com `--version`, `-V`, `doctor` e `keys`. O
+`doctor` lê a máquina e sugere um perfil de folga (`leve`, `padrao` ou
+`forte`). O perfil de qualidade permanece o da
+[ADR 0004](../adr/0004-qualidade-em-primeiro-lugar.md). O guia está em
+[Instalação](../instalacao.md). `keys` grava, lista e apaga a chave de um
+provedor. **Planejado** o restante da linha de comando: submeter um job,
+consultar o status e apontar o diretório de saída. A CLI chama o mesmo
+núcleo que a API.
 
 ### API e interface web
 
@@ -533,11 +542,12 @@ SDKs. Anthropic fala outro protocolo. O adaptador próprio continua
 **planejado**, atrás da mesma porta, com a chave só no keyring. Nenhum
 desses quatro nomes está implementado.
 
-A chave é lida com a biblioteca `keyring`, no serviço `megila` e na
-conta configurada. O chaveiro é o do sistema operacional. Se o backend
-não estiver disponível, o provedor externo não liga. O processo explica
-o que falta e não cai para arquivo, variável de ambiente persistida nem
-tabela SQLite. O provedor `local` continua funcionando sem chave.
+A chave é lida com a biblioteca `keyring`, no serviço configurado (o
+padrão é `megila`) e na conta configurada. O comando é `megila keys`.
+O chaveiro é o do sistema operacional. Se o backend não estiver
+disponível, o Megila não grava a chave em arquivo, variável de ambiente
+nem SQLite. O provedor `local` continua funcionando sem chave. O detalhe
+está em [Segurança](../seguranca.md).
 
 O valor lido não entra no payload do job, não entra no `manifest.json`
 nem no `qa.json`, e não é escrito no diretório de saída. Um filtro de

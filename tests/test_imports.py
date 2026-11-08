@@ -11,6 +11,7 @@ EXPECTED_SUBPACKAGES: tuple[str, ...] = (
     "megila.api",
     "megila.cli",
     "megila.config",
+    "megila.doctor",
     "megila.jobs",
     "megila.jobs.queue",
     "megila.jobs.queue.migrations",
@@ -18,6 +19,7 @@ EXPECTED_SUBPACKAGES: tuple[str, ...] = (
     "megila.notify",
     "megila.plugins",
     "megila.providers",
+    "megila.secrets",
     "megila.stages",
     "megila.storage",
 )

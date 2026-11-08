@@ -71,9 +71,11 @@ at zero cost. The detail is in
 The text model that plans overlays and writes the summary is pluggable.
 The default provider is local: no key and no external call. An external
 provider is opt-in, with your own key in the operating system keyring,
-not in the repository, the log, or the job directory. Transcription
-does not go through that port. It stays local. The detail is in
-[ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
+not in the repository, the log, or the job directory. The `megila keys`
+command stores, lists, and deletes that key. Without a system keyring,
+the command refuses to store the key; there is no file fallback.
+Transcription does not go through that port. It stays local. The detail
+is in [ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
 
 ### Resilience
 
@@ -94,7 +96,7 @@ video yet.
 What is already in the tree:
 
 - The package in `src/megila/` and the Typer CLI, which answers
-  `megila --version`.
+  `megila --version`, `megila doctor`, and stores keys with `megila keys`.
 - The development tools: hatchling, ruff, strict mypy, pytest, and
   pre-commit.
 - The MkDocs site, ADRs 0001 through 0006, and the synthetic pt-BR test
@@ -103,9 +105,11 @@ What is already in the tree:
   `src/megila/jobs/queue/`. Job claim does not run yet.
 - The code of conduct, the security policy, and the changelog.
 
-The CLI today reports the version. There are no pipeline subcommands
-yet. The inner packages mark each component's boundary. This tree
-cannot transcribe, overlay, compress, summarize, or cut clips.
+The CLI reports the version, checks ffmpeg, the machine, and disk with
+`megila doctor`, and stores a provider key with `megila keys`. There are
+no pipeline subcommands yet. The inner packages mark each component's
+boundary. This tree cannot transcribe, overlay, compress, summarize, or
+cut clips.
 
 ## Development install
 
@@ -129,8 +133,10 @@ megila --version
 python -m megila --version
 ```
 
-Both commands exit with code 0 and print `megila 0.1.0`. The full
-guide, with pytest, ruff, mypy, and pre-commit, is in
+Both commands exit with code 0 and print `megila 0.1.0`. `megila doctor`
+checks ffmpeg and the machine; the guide is
+[Install](docs/instalacao.md). The full environment guide, with pytest,
+ruff, mypy, and pre-commit, is in
 [Development environment](docs/dev/ambiente.md).
 
 ## Documentation
@@ -141,7 +147,10 @@ Pages uses GitHub Actions as the source, is
 pages are in the repository:
 
 - [Home](docs/index.md)
+- [Install](docs/instalacao.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [Configuration](docs/configuracao.md) (in Portuguese)
+- [Security](docs/seguranca.md) (in Portuguese)
 - [Development environment](docs/dev/ambiente.md)
 - [Test samples](docs/dev/amostras.md)
 - [How to write the docs](docs/dev/docs.md)

@@ -1,7 +1,8 @@
 """Recognize the filesystem that will hold the queue database.
 
 ADR 0003: the database lives on a local disk. ``nfs``, ``cifs``, ``smb``,
-``fuse.rclone`` and the same protocols under another name are refused.
+``fuse.rclone``, ``sshfs``, ``ceph``, ``glusterfs`` and the same protocols
+under another name are refused.
 An unrecognized type is not refused; only a positive match is.
 """
 
@@ -10,7 +11,9 @@ from __future__ import annotations
 from pathlib import Path
 
 # Names are compared after ``str.lower()``. ``nfs4`` is NFS. ``smb2`` and
-# ``smb3`` are SMB. ``rclone`` is the same mount as ``fuse.rclone``.
+# ``smb3`` are SMB. ``rclone`` is the same mount as ``fuse.rclone``. SQLite
+# WAL needs shared memory and working locks, which these network and FUSE
+# filesystems do not give reliably: sshfs, ceph and glusterfs included.
 REFUSED_FILESYSTEM_TYPES: frozenset[str] = frozenset(
     {
         "nfs",
@@ -21,6 +24,12 @@ REFUSED_FILESYSTEM_TYPES: frozenset[str] = frozenset(
         "smb3",
         "fuse.rclone",
         "rclone",
+        "fuse.sshfs",
+        "sshfs",
+        "ceph",
+        "fuse.ceph",
+        "fuse.glusterfs",
+        "glusterfs",
     }
 )
 
