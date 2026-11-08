@@ -94,16 +94,17 @@ video yet.
 What is already in the tree:
 
 - The package in `src/megila/` and the Typer CLI, which answers
-  `megila --version`.
+  `megila --version` and `megila doctor`.
 - The development tools: hatchling, ruff, strict mypy, pytest, and
   pre-commit.
 - The MkDocs site, ADRs 0001 through 0006, and the synthetic pt-BR test
   clip.
 - The code of conduct, the security policy, and the changelog.
 
-The CLI today reports the version. There are no pipeline subcommands
-yet. The inner packages mark each component's boundary. This tree
-cannot transcribe, overlay, compress, summarize, or cut clips.
+The CLI reports the version and, with `megila doctor`, checks ffmpeg,
+the machine, and disk. There are no pipeline subcommands yet. The inner
+packages mark each component's boundary. This tree cannot transcribe,
+overlay, compress, summarize, or cut clips.
 
 ## Development install
 
@@ -127,8 +128,10 @@ megila --version
 python -m megila --version
 ```
 
-Both commands exit with code 0 and print `megila 0.1.0`. The full
-guide, with pytest, ruff, mypy, and pre-commit, is in
+Both commands exit with code 0 and print `megila 0.1.0`. `megila doctor`
+checks ffmpeg and the machine; the guide is
+[Install](docs/instalacao.md). The full environment guide, with pytest,
+ruff, mypy, and pre-commit, is in
 [Development environment](docs/dev/ambiente.md).
 
 ## Documentation
@@ -139,6 +142,8 @@ Pages uses GitHub Actions as the source, is
 pages are in the repository:
 
 - [Home](docs/index.md)
+- [Install](docs/instalacao.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [Configuration](docs/configuracao.md) (in Portuguese)
 - [Development environment](docs/dev/ambiente.md)
 - [Test samples](docs/dev/amostras.md)
