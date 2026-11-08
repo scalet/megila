@@ -292,9 +292,12 @@ def _backup(host: HostStats, source: Path, backup: str | None) -> BackupFacts:
 def _hard_failures(ffmpeg: FfmpegFacts) -> tuple[str, ...]:
     if not ffmpeg.present:
         return (FFMPEG_MISSING,)
+    failures: list[str] = []
     if not ffmpeg.libass:
-        return (LIBASS_MISSING,)
-    return ()
+        failures.append(LIBASS_MISSING)
+    if not ffmpeg.libx264:
+        failures.append(LIBX264_MISSING)
+    return tuple(failures)
 
 
 def _warnings(
@@ -314,8 +317,6 @@ def _warnings(
         found.append(DISK_UNREADABLE)
     if ffmpeg.present and not ffmpeg.libvmaf:
         found.append(LIBVMAF_MISSING)
-    if ffmpeg.present and not ffmpeg.libx264:
-        found.append(LIBX264_MISSING)
     if backup_facts.status == "same_disk":
         found.append(BACKUP_SAME_DISK)
     return tuple(found)

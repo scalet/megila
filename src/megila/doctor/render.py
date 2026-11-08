@@ -64,7 +64,7 @@ def report_rows(report: DoctorReport) -> list[tuple[str, str, str]]:
         rows.append(
             (
                 "libx264",
-                _library_status(ffmpeg.libx264, hard=False),
+                _library_status(ffmpeg.libx264, hard=True),
                 _libx264_detail(report),
             )
         )

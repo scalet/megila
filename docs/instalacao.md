@@ -36,15 +36,16 @@ externos, chamados por subprocesso, como na
 O binário `ffmpeg` precisa estar no `PATH`. O Megila não o vendoriza e não
 liga libass, libvmaf nem libx264 dentro do processo Python.
 
-O `megila doctor` trata dois requisitos como duros: o executável tem de
-rodar, e a build tem de incluir o libass. Sem um dos dois o comando
-termina com código 1.
+O `megila doctor` trata três requisitos como duros: o executável tem de
+rodar, e a build tem de incluir o libass e o libx264. O encode da
+[ADR 0004](adr/0004-qualidade-em-primeiro-lugar.md) usa o libx264, então
+sem ele o perfil de qualidade não pode ser entregue. Sem um dos três o
+comando termina com código 1.
 
-A mesma build, para o gate de vídeo da
-[ADR 0004](adr/0004-qualidade-em-primeiro-lugar.md), também precisa de
-libvmaf e de libx264. Se faltar um deles, o doctor avisa e ainda assim
-termina com código 0 quando o ffmpeg e o libass estão presentes. O job,
-quando existir, continua falhando fechado sem a medida.
+O gate de vídeo da mesma ADR também precisa de libvmaf. Se faltar, o
+doctor avisa e ainda assim termina com código 0 quando o ffmpeg, o
+libass e o libx264 estão presentes. O job, quando existir, continua
+falhando fechado sem a medida.
 
 O doctor lê três invocações, cada uma com lista de argumentos e sem shell:
 
@@ -150,11 +151,11 @@ como 8 GB (potência de dez) fica abaixo desse teto e também cai em `leve`.
 
 | Código | Quando |
 | --- | --- |
-| 0 | O ffmpeg roda e a build tem libass. Avisos podem existir. |
-| 1 | O ffmpeg não está no `PATH`, não chega a responder, ou a build não tem libass. |
+| 0 | O ffmpeg roda e a build tem libass e libx264. Avisos podem existir. |
+| 1 | O ffmpeg não está no `PATH`, não chega a responder, ou a build não tem libass ou libx264. |
 
-Os códigos no relatório são `ffmpeg_missing` e `libass_missing`. Avisos
-comuns: `libvmaf_missing`, `libx264_missing`, `backup_same_disk`,
+Os códigos de falha no relatório são `ffmpeg_missing`, `libass_missing` e
+`libx264_missing`. Avisos comuns: `libvmaf_missing`, `backup_same_disk`,
 `config_invalid`, `memory_unreadable`, `disk_unreadable`.
 
 ## JSON

@@ -5,7 +5,17 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
+      # mkdocs.yml uses !!python/name and !!python/object/apply. safe_load
+      # rejects those tags. --unsafe resolves them only when pymdownx is
+      # installed, so the MkDocs file has its own hook.
       - id: check-yaml
+        exclude: ^mkdocs\.yml$
+      - id: check-yaml
+        name: check-yaml (mkdocs)
+        args: [--unsafe]
+        files: ^mkdocs\.yml$
+        additional_dependencies:
+          - pymdown-extensions==12.3
       - id: check-toml
       - id: check-added-large-files
       - id: check-merge-conflict
@@ -24,7 +34,16 @@ repos:
     rev: v2.4.1
     hooks:
       - id: mypy
+        # The hook environment does not install the project. List every
+        # third-party import mypy resolves: the runtime dependencies, plus
+        # hypothesis, which the tests import. Keep the floors aligned with
+        # pyproject.toml.
         additional_dependencies:
-          - typer>=0.15.1
+          - hypothesis>=6.100
+          - psutil>=6.1
+          - pydantic>=2.14
+          - pydantic-settings>=2.16
           - pytest>=8.3
+          - types-psutil>=7.0
+          - typer>=0.15.1
         args: [--strict]

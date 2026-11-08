@@ -72,13 +72,13 @@ O VMAF está em <https://github.com/Netflix/vmaf>.
 
 ## libx264 ausente
 
-O aviso é `libx264_missing` quando o encoder `libx264` não aparece em
+A falha é `libx264_missing` quando o encoder `libx264` não aparece em
 `-encoders` e `--enable-libx264` não aparece na configuração da build. O
 encode da
-[ADR 0004](adr/0004-qualidade-em-primeiro-lugar.md) usa esse codificador.
-O doctor avisa e deixa o código 0, pelo mesmo motivo do libvmaf: a
-pessoa precisa ler o relatório numa máquina que ainda não tem a build
-completa.
+[ADR 0004](adr/0004-qualidade-em-primeiro-lugar.md) usa esse codificador
+(`preset slow`, CRF 19). Sem ele o perfil de qualidade não pode ser
+entregue, então o doctor termina com código 1. Troque por uma build que
+liste `--enable-libx264`.
 
 ## Backup no mesmo disco da origem
 

@@ -289,7 +289,21 @@ def test_libx264_from_encoder_without_build_flag() -> None:
     assert report.ffmpeg.libx264_encoder is True
     assert report.ffmpeg.libx264_build is False
     assert report.ffmpeg.libx264 is True
+    assert LIBX264_MISSING not in report.hard_failures
+
+
+def test_missing_libx264_is_a_hard_failure() -> None:
+    report, _script = _report(
+        filters=_FILTERS_VMAF,
+        encoders=_ENCODERS_EMPTY,
+        build="configuration:\n",
+    )
+    assert report.ffmpeg.libass is True
+    assert report.ffmpeg.libx264 is False
+    assert report.hard_failures == (LIBX264_MISSING,)
     assert LIBX264_MISSING not in report.warnings
+    assert report.exit_code == 1
+    assert report.ok is False
 
 
 def test_filter_parser_ignores_the_legend_and_vmafmotion() -> None:

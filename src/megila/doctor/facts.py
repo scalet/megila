@@ -192,7 +192,7 @@ class DoctorReport:
 
     @property
     def ok(self) -> bool:
-        """True when ffmpeg is usable and the build includes libass."""
+        """True when ffmpeg is usable and the build has libass and libx264."""
         return len(self.hard_failures) == 0
 
     @property
