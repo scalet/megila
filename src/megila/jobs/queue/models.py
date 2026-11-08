@@ -24,6 +24,7 @@ from sqlalchemy import (
     CheckConstraint,
     Float,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     MetaData,
@@ -281,6 +282,7 @@ class Job(Base):
         back_populates="job",
         cascade="all, delete-orphan",
         passive_deletes=True,
+        overlaps="chunks,step",
     )
     events: Mapped[list[Event]] = relationship(
         back_populates="job",
@@ -318,6 +320,8 @@ class Step(Base):
         CheckConstraint("attempt >= 0", name="ck_steps_attempt"),
         Index("uq_steps_job_id_name", "job_id", "name", unique=True),
         Index("uq_steps_job_id_position", "job_id", "position", unique=True),
+        # Target of the composite foreign key from ``chunks``.
+        Index("uq_steps_id_job_id", "id", "job_id", unique=True),
     )
 
     id: Mapped[str] = mapped_column(Text, primary_key=True, default=new_id)
@@ -345,6 +349,7 @@ class Step(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
         order_by="Chunk.chunk_index",
+        overlaps="chunks",
     )
     events: Mapped[list[Event]] = relationship(back_populates="step")
     artifacts: Mapped[list[Artifact]] = relationship(back_populates="step")
@@ -368,6 +373,14 @@ class Chunk(Base):
             name="ck_chunks_content_hash",
         ),
         Index("ix_chunks_job_id", "job_id"),
+        # (step_id, job_id) must be a real step of that job, so a chunk cannot
+        # name one job and the step of another.
+        ForeignKeyConstraint(
+            ["step_id", "job_id"],
+            ["steps.id", "steps.job_id"],
+            name="fk_chunks_step_id_steps",
+            ondelete="CASCADE",
+        ),
     )
 
     job_id: Mapped[str] = mapped_column(
@@ -375,11 +388,7 @@ class Chunk(Base):
         ForeignKey("jobs.id", name="fk_chunks_job_id_jobs", ondelete="CASCADE"),
         nullable=False,
     )
-    step_id: Mapped[str] = mapped_column(
-        Text,
-        ForeignKey("steps.id", name="fk_chunks_step_id_steps", ondelete="CASCADE"),
-        primary_key=True,
-    )
+    step_id: Mapped[str] = mapped_column(Text, primary_key=True)
     chunk_index: Mapped[int] = mapped_column(Integer, primary_key=True)
     artifact_path: Mapped[str] = mapped_column(Text, nullable=False)
     content_hash: Mapped[str] = mapped_column(Text, nullable=False)
@@ -387,8 +396,8 @@ class Chunk(Base):
         Text, nullable=False, default=utc_now, server_default=_sql_utc_now()
     )
 
-    job: Mapped[Job] = relationship(back_populates="chunks")
-    step: Mapped[Step] = relationship(back_populates="chunks")
+    job: Mapped[Job] = relationship(back_populates="chunks", overlaps="chunks,step")
+    step: Mapped[Step] = relationship(back_populates="chunks", overlaps="chunks,job")
 
 
 class Event(Base):

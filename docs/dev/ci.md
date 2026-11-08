@@ -86,8 +86,11 @@ libvmaf está na [ADR 0004](../adr/0004-qualidade-em-primeiro-lugar.md).
 
 ## Cache
 
-O token do workflow pede `contents: read` e, no job de Python,
-`actions: write`. A escrita serve só ao cache de Actions. Não há secret.
+O token do workflow pede só `contents: read`. O `actions/cache` grava o
+cache com a credencial própria do runner, sem `actions: write`. Não há
+secret. Um push novo cancela a execução anterior do mesmo pull request;
+as execuções na `main` não são canceladas, para cada commit mergeado
+manter o seu resultado.
 
 | Cache | Onde | Chave |
 | --- | --- | --- |

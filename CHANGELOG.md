@@ -43,4 +43,12 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   sintético, tags YAML do `mkdocs.yml`, e o hook de mypy importa pydantic,
   pydantic-settings e hypothesis (M0-06).
 
+### Changed
+
+- A revisão `0001_initial` da fila passa a trazer o DDL congelado em vez de
+  chamar `create_all` com os modelos. `chunks` ganha chave estrangeira
+  composta `(step_id, job_id)` para `steps`. O CI roda com `contents: read`
+  e não cancela execuções na `main`. A documentação registra que "mesmo
+  disco" no doctor usa `st_dev` e o limite de 8 caracteres do mascaramento.
+
 [Unreleased]: https://github.com/scalet/megila/commits/main

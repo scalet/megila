@@ -12,7 +12,9 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push cancels the older pull request run. Runs on main stay, so
+  # every merged commit keeps its own result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   python:
@@ -25,9 +27,6 @@ jobs:
         python-version:
           - "3.12"
           - "3.13"
-    permissions:
-      contents: read
-      actions: write
     env:
       HF_HOME: ${{ github.workspace }}/.cache/huggingface
       HUGGINGFACE_HUB_CACHE: ${{ github.workspace }}/.cache/huggingface/hub

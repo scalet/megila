@@ -117,7 +117,10 @@ O pedaço confirmado de um passo longo. A chave primária é
 `(step_id, chunk_index)`. É o checkpoint da
 [ADR 0003](../adr/0003-fila-sqlite-wal.md): `artifact_path` é o arquivo
 final e `content_hash` é o SHA-256 em hexadecimal, com 64 caracteres.
-`job_id` está repetido para listar os pedaços do job sem join. A ordem
+`job_id` está repetido para listar os pedaços do job sem join. Uma chave
+estrangeira composta `(step_id, job_id)` para `steps` garante que o
+`job_id` do pedaço é o do job do passo; um pedaço não aponta para o job
+de um e o passo de outro. A ordem
 de gravação continua a da ADR: escrever o temporário, `fsync`, renomear,
 e só então inserir a linha. Essa ordem ainda não está no código; a tabela
 já exige o hash.
@@ -230,6 +233,13 @@ estrangeira.
 O esquema usa SQLAlchemy 2 e Alembic. Os dois são MIT, como pede a
 [ADR 0002](../adr/0002-licenca-mit-sem-codigo-agpl.md). Os scripts ficam em
 `megila.jobs.queue.migrations`. A revisão inicial é `0001_initial`.
+
+O DDL da `0001_initial` é uma cópia literal, congelada, do que os modelos
+produziam quando a revisão foi escrita. A revisão não chama os modelos.
+Uma mudança de esquema vira uma revisão nova, e o teste
+`test_models_match_the_frozen_initial_schema` falha se os modelos se
+afastarem do DDL congelado sem ela. Enquanto o primeiro release não sai,
+um ajuste ainda pode editar a `0001` junto com os modelos.
 
 `upgrade_database` leva o arquivo até `head`. `downgrade_database` sem
 argumento volta a `base` e apaga as dez tabelas; o arquivo SQLite

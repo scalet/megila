@@ -342,3 +342,30 @@ def test_qa_name_is_unique_and_artifact_hash_is_optional(session: Session) -> No
     )
     with pytest.raises(IntegrityError):
         session.commit()
+
+
+def test_chunk_cannot_pair_a_step_with_another_jobs_id(session: Session) -> None:
+    first = Job(payload="{}")
+    second = Job(payload="{}")
+    step = Step(job=first, name="encode", position=0)
+    session.add_all([first, second, step])
+    session.flush()
+    insert_chunk = text(
+        "INSERT INTO chunks ("
+        "job_id, step_id, chunk_index, artifact_path, content_hash"
+        ") VALUES (:job_id, :step_id, 0, '/tmp/a', :content_hash)"
+    )
+    session.execute(
+        insert_chunk,
+        {"job_id": first.id, "step_id": step.id, "content_hash": _HASH},
+    )
+    session.commit()
+    with pytest.raises(IntegrityError):
+        session.execute(
+            text(
+                "INSERT INTO chunks ("
+                "job_id, step_id, chunk_index, artifact_path, content_hash"
+                ") VALUES (:job_id, :step_id, 1, '/tmp/b', :content_hash)"
+            ),
+            {"job_id": second.id, "step_id": step.id, "content_hash": _HASH},
+        )

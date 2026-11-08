@@ -95,7 +95,18 @@ nome do provedor e o serviço do chaveiro. O valor não entra. Corpo de
 pedido e corpo de resposta de um provedor também não são logados.
 
 Um log da biblioteca padrão da linguagem passa pelo mesmo redator no
-texto da mensagem.
+texto da mensagem. Esse redator é instalado como fábrica de `LogRecord`
+do processo inteiro: ele renderiza e redige a mensagem de todo registro,
+inclusive o de bibliotecas de terceiros, e descarta os `args` originais.
+
+### Limite: chaves curtas
+
+Um valor registrado com 8 caracteres ou mais é substituído em qualquer
+posição do texto. Um valor com menos de 8 só é redigido quando é o texto
+inteiro do campo; dentro de uma frase maior ele aparece. O corte evita
+que uma chave de 2 ou 3 caracteres estrague todo o log. Chaves reais de
+provedores são bem mais longas, mas quem usa um valor curto de teste deve
+saber que o log não o esconde no meio de um texto.
 
 ## Dependências
 

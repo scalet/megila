@@ -87,6 +87,12 @@ diretório `--source` (ou o `data_dir`, quando `--source` foi omitido)
 resolvem para o mesmo `st_dev`. Uma cópia nesse disco não sobrevive à
 falha dele.
 
+O `st_dev` identifica o sistema de arquivos, não o disco físico. Duas
+partições, volumes LVM ou subvolumes btrfs do mesmo disco têm `st_dev`
+diferentes, e o doctor os trata como destinos distintos. Nesse caso a
+ausência do aviso não prova que o backup sobrevive à falha do disco:
+confira a topologia você mesmo.
+
 ```bash
 megila doctor --source /dados/videos --backup /dados/copia
 ```
