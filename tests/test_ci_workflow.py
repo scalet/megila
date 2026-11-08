@@ -40,3 +40,10 @@ def test_mkdocs_yaml_tags_are_checked_with_an_unsafe_hook() -> None:
     assert "exclude: ^mkdocs\\.yml$" in pre_commit
     assert "--unsafe" in pre_commit
     assert "pymdown-extensions==" in pre_commit
+
+
+def test_workflow_token_is_read_only_and_main_runs_are_not_cancelled() -> None:
+    text = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "actions: write" not in text
+    assert "contents: read" in text
+    assert "cancel-in-progress: ${{ github.event_name == 'pull_request' }}" in text

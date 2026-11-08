@@ -66,6 +66,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
+# Frozen DDL in migration revisions keeps the SQL on single lines.
+[tool.ruff.lint.per-file-ignores]
+"src/megila/jobs/queue/migrations/versions/*.py" = ["E501"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["megila"]
 

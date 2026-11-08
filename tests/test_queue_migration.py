@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import ast
 import os
 import re
 from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from sqlalchemy import MetaData, inspect, text
+from sqlalchemy import MetaData, create_engine, inspect, text
 from sqlalchemy.engine import Engine
 
 from megila.config import load_settings
@@ -319,3 +320,37 @@ def test_current_revision_of_a_missing_file_does_not_create_it(
     assert current_revision(missing) is None
     assert not missing.exists()
     assert not missing.parent.exists()
+
+
+def _schema_sql(engine: Engine) -> set[str]:
+    with engine.connect() as connection:
+        rows = connection.execute(
+            text("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL")
+        ).scalars()
+        return {" ".join(row.split()) for row in rows}
+
+
+def test_models_match_the_frozen_initial_schema(engine: Engine, tmp_path: Path) -> None:
+    """A model change without a new revision fails here."""
+    fresh = create_engine(f"sqlite:///{tmp_path / 'from-models.sqlite3'}")
+    try:
+        Base.metadata.create_all(fresh)
+        from_models = _schema_sql(fresh)
+    finally:
+        fresh.dispose()
+    from_revision = _schema_sql(engine)
+    assert from_revision - {s for s in from_revision if "alembic_version" in s} == (
+        from_models
+    )
+
+
+def test_initial_revision_does_not_depend_on_the_models() -> None:
+    tree = ast.parse(Path(initial_schema.__file__).read_text(encoding="utf-8"))
+    imported = {
+        node.module
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module
+    }
+    called = {node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
+    assert not {m for m in imported if m.startswith("megila")}
+    assert not {"create_all", "drop_all"} & called

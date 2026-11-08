@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "total": 95.27,
-  "core": 95.2,
+  "total": 95.28,
+  "core": 95.22,
   "packages": {
     "megila.config": 94.11,
-    "megila.jobs": 98.04,
+    "megila.jobs": 98.08,
     "megila.plugins": null,
     "megila.stages": null
   }

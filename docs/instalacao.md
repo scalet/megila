@@ -83,6 +83,8 @@ O doctor reconhece dois casos:
 O doctor informa o espaço livre do diretório de origem. O padrão desse
 diretório é o `data_dir` da [configuração](configuracao.md). Um backup
 local no mesmo disco da origem gera aviso: a cópia some junto com o disco.
+A comparação usa o sistema de arquivos (`st_dev`), não o disco físico:
+partições, volumes LVM e subvolumes btrfs do mesmo disco passam sem aviso.
 Um remote rclone (`nome:prefixo`) é outro destino e não gera esse aviso.
 
 ## Instalar para desenvolvimento
