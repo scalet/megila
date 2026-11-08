@@ -67,9 +67,11 @@ permanece com custo zero. O detalhe está na
 O modelo de texto que planeja os overlays e escreve o resumo é plugável.
 O provedor padrão é local: sem chave e sem chamada externa. Um provedor
 externo é opt-in, com a chave da própria pessoa no keyring do sistema
-operacional, não no repositório, no log nem no diretório do job. A
-transcrição não passa por essa porta. Continua local. O detalhe está na
-[ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
+operacional, não no repositório, no log nem no diretório do job. O
+comando `megila keys` grava, lista e apaga essa chave. Sem chaveiro no
+sistema, o comando recusa gravar; não há fallback em arquivo. A
+transcrição não passa por essa porta. Continua local. O detalhe
+está na [ADR 0005](docs/adr/0005-ia-plugavel-e-keyring.md).
 
 ### Resiliência
 
@@ -90,16 +92,17 @@ para processar vídeo.
 O que já está na árvore:
 
 - O pacote em `src/megila/` e a CLI Typer, que responde a
-  `megila --version` e a `megila doctor`.
+  `megila --version`, `megila doctor` e guarda chaves com `megila keys`.
 - As ferramentas de desenvolvimento: hatchling, ruff, mypy estrito,
   pytest e pre-commit.
 - O site MkDocs, as ADRs 0001 a 0006 e o clipe sintético de teste em
   pt-BR.
 - O Código de Conduta, a política de segurança e o changelog.
 
-A CLI informa a versão e, com `megila doctor`, confere o ffmpeg, a
-máquina e o disco. Ainda não há subcomandos de pipeline. Os pacotes
-internos marcam a fronteira de cada componente. Não dá para transcrever,
+A CLI informa a versão, confere o ffmpeg, a máquina e o disco com
+`megila doctor` e guarda a chave de um provedor com `megila keys`. Ainda
+não há subcomandos de pipeline. Os pacotes internos marcam a fronteira de
+cada componente. Não dá para transcrever,
 sobrepor, comprimir, resumir nem gerar cortes com esta árvore.
 
 ## Instalação para desenvolvimento
@@ -141,6 +144,7 @@ responde, as páginas estão no repositório:
 - [Instalação](docs/instalacao.md)
 - [Solução de problemas](docs/troubleshooting.md)
 - [Configuração](docs/configuracao.md)
+- [Segurança](docs/seguranca.md)
 - [Ambiente de desenvolvimento](docs/dev/ambiente.md)
 - [Amostras de teste](docs/dev/amostras.md)
 - [Como escrever a documentação](docs/dev/docs.md)

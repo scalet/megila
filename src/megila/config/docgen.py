@@ -102,6 +102,22 @@ _TAIL_AFTER_ERROR = """\
 O glossário é texto do perfil. Um termo chamado `token` é uma palavra,
 não um campo de credencial. Ver [Perfis](perfis.md).
 
+## Chaveiro
+
+`keyring_service` é o serviço no chaveiro. O padrão é `megila`.
+`keyring_account` é a conta. Ela é o mesmo nome passado a
+`megila keys set`. Com `keyring_account = "openai"`, o comando é
+`megila keys set openai`.
+
+O comando não aceita a chave como argumento. O programa pede o valor
+num prompt oculto. `megila keys list` mostra só os nomes dos
+provedores. `megila keys delete` apaga uma conta.
+
+Sem um backend de chaveiro utilizável, `megila keys` recusa gravar a
+chave. O Megila não cai para arquivo, variável de ambiente nem SQLite,
+conforme a [ADR 0005](adr/0005-ia-plugavel-e-keyring.md). O mascaramento
+do log está em [Segurança](seguranca.md).
+
 ## Escrita atômica
 
 `megila.storage.atomic_write` substitui um arquivo sem publicar um
@@ -717,10 +733,11 @@ def _preamble(model: type[BaseModel]) -> str:
         "definido só no arquivo substitui o padrão. Os outros campos do",
         "arquivo permanecem.",
         "",
-        "A chave de API não entra em nenhuma camada. Ela fica no chaveiro",
-        "do sistema operacional, no serviço `megila`, como na",
-        "[ADR 0005](adr/0005-ia-plugavel-e-keyring.md). O modelo guarda o",
-        "nome do serviço e o da conta, não o segredo. Se o segredo",
+        "A chave de API não entra em nenhuma camada. O modelo guarda",
+        "`keyring_service` e `keyring_account`, que são nomes, não o",
+        "segredo. Quem grava a chave usa `megila keys`. O contrato desses",
+        "campos está na seção [Chaveiro](#chaveiro) e na",
+        "[ADR 0005](adr/0005-ia-plugavel-e-keyring.md). Se o segredo",
         "aparecer na configuração, o programa recusa o arquivo, a",
         "variável ou o argumento e não repete o valor.",
     ]

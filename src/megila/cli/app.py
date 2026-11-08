@@ -6,6 +6,7 @@ import typer
 
 from megila import __version__
 from megila.cli.doctor import doctor as doctor_command
+from megila.cli.keys import keys_app
 
 app = typer.Typer(
     name="megila",
@@ -38,6 +39,7 @@ def cli(
 
 
 app.command()(doctor_command)
+app.add_typer(keys_app, name="keys")
 
 
 def main() -> None:

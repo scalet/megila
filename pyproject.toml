@@ -21,9 +21,16 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
+  # keyring is MIT. On Linux it also installs SecretStorage (BSD-3-Clause),
+  # jeepney (MIT), jaraco.* (MIT), more-itertools (MIT), cryptography
+  # (Apache-2.0 OR BSD-3-Clause), cffi (MIT-0), and pycparser (BSD-3-Clause).
+  # structlog is MIT OR Apache-2.0. All of these are on the ADR 0002 list;
+  # MIT-0 is MIT with the attribution clause removed.
+  "keyring>=25.6",
   "psutil>=6.1",
   "pydantic>=2.14",
   "pydantic-settings>=2.16",
+  "structlog>=25.1",
   "typer>=0.15.1",
 ]
 
