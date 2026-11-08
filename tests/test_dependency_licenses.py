@@ -32,6 +32,7 @@ _CLASSIFIER_MAP = {
     "License :: OSI Approved :: Python Software Foundation License": "PSF-2.0",
 }
 _PACKAGES = (
+    "psutil",
     "pydantic",
     "pydantic-settings",
     "pydantic-core",
@@ -106,3 +107,7 @@ def test_keyring_and_structlog_licenses() -> None:
     assert _declared_license("structlog") == "MIT OR Apache-2.0"
     assert _expression_allowed(_declared_license("structlog"))
     assert _declared_license("cffi") == "MIT-0"
+
+
+def test_psutil_is_bsd_3_clause() -> None:
+    assert _declared_license("psutil") == "BSD-3-Clause"

@@ -5,6 +5,7 @@ Skipped with a warning when ffmpeg, ffprobe, or espeak-ng is not on PATH.
 
 from __future__ import annotations
 
+import shutil
 import sys
 import warnings
 from pathlib import Path
@@ -31,16 +32,20 @@ def skip_unless_sample_tools() -> None:
     pytest.skip(message)
 
 
-def test_skip_warns_when_ffmpeg_or_espeak_is_missing(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(make_sample.shutil, "which", lambda _name: None)
-    with pytest.warns(make_sample.SampleToolWarning, match="espeak-ng"):
-        with pytest.raises(pytest.skip.Exception, match="espeak-ng"):
-            skip_unless_sample_tools()
+def test_skip_warns_when_ffmpeg_or_espeak_is_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
+    with (
+        pytest.warns(make_sample.SampleToolWarning, match="espeak-ng"),
+        pytest.raises(pytest.skip.Exception, match="espeak-ng"),
+    ):
+        skip_unless_sample_tools()
 
 
 def test_generated_clip_is_deterministic_and_matches_probe(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
-):
+) -> None:
     skip_unless_sample_tools()
     spec = make_sample.DEFAULT_SPEC
     first = make_sample.generate_sample(cache_dir=tmp_path / "a", force=True)
@@ -72,7 +77,10 @@ def test_generated_clip_is_deterministic_and_matches_probe(
     assert digest_first in recorded
     assert '"speech_duration_s"' in recorded
 
-    assert make_sample.main(
-        ["--cache-dir", str(tmp_path / "a"), "--check", "--print-hash"]
-    ) == 0
+    assert (
+        make_sample.main(
+            ["--cache-dir", str(tmp_path / "a"), "--check", "--print-hash"]
+        )
+        == 0
+    )
     assert capsys.readouterr().out.strip() == digest_first

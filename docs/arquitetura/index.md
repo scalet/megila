@@ -29,10 +29,12 @@ Existe é o que roda hoje. Decidido e planejado ainda não rodam. A diferença
 
 ## O que existe hoje
 
-A versão do pacote é 0.1.0. As dependências de runtime incluem o Typer,
-o pydantic, o keyring e o structlog. O comando `megila --version` (e
-`python -m megila --version`) imprime a versão e encerra. `megila keys`
-grava, lista e apaga a chave de um provedor. Não há subcomando de job.
+A versão do pacote é 0.1.0. As dependências de runtime são Typer,
+pydantic, pydantic-settings, psutil, keyring e structlog. O comando
+`megila --version` (e `python -m megila --version`) imprime a versão e
+encerra. `megila doctor` confere o ffmpeg, a máquina e o disco.
+`megila keys` grava, lista e apaga a chave de um provedor. Não há
+subcomando de job.
 
 Os subpacotes abaixo são importáveis. O arquivo de cada um descreve a
 fronteira; não há fila, etapa, API, provedor nem plugin em execução. Não
@@ -40,7 +42,8 @@ há aplicação React no repositório.
 
 | Módulo | Estado | Lugar no mapa |
 | --- | --- | --- |
-| `megila.cli` | Existe | Linha de comando. Versão e `megila keys`. |
+| `megila.cli` | Existe | Linha de comando. Hoje `--version`, `-V`, `doctor` e `keys`. |
+| `megila.doctor` | Existe | Conferência da máquina: ffmpeg, CPU, RAM, disco, GPU, sensores e aviso de backup no mesmo disco. |
 | `megila.api` | Planejado | HTTP com FastAPI, chamando o mesmo núcleo da CLI. |
 | `megila.config` | Existe | Caminhos, perfis e modelo de texto. Sem segredo no arquivo. |
 | `megila.secrets` | Existe | Chave no keyring. Sem backend, não grava em arquivo. |
@@ -118,10 +121,14 @@ yt-dlp, adaptador de texto externo, Telegram e rclone.
 
 ### CLI
 
-**Existe** o programa Typer, com `--version`, `-V` e `megila keys`.
-**Planejado** o restante da linha de comando: submeter um job, consultar
-o status e apontar o diretório de saída. A CLI chama o mesmo núcleo que
-a API.
+**Existe** o programa Typer, com `--version`, `-V`, `doctor` e `keys`. O
+`doctor` lê a máquina e sugere um perfil de folga (`leve`, `padrao` ou
+`forte`). O perfil de qualidade permanece o da
+[ADR 0004](../adr/0004-qualidade-em-primeiro-lugar.md). O guia está em
+[Instalação](../instalacao.md). `keys` grava, lista e apaga a chave de um
+provedor. **Planejado** o restante da linha de comando: submeter um job,
+consultar o status e apontar o diretório de saída. A CLI chama o mesmo
+núcleo que a API.
 
 ### API e interface web
 

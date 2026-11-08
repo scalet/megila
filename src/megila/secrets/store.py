@@ -2,7 +2,8 @@
 
 The service name comes from ``Settings.text_model.keyring_service`` (default
 ``megila``). The account name is the provider passed to ``megila keys``, which
-is the same string as ``keyring_account`` when the text model looks the key up.
+is the same string as ``keyring_account`` when the text model looks the key up,
+or the provider name when ``keyring_account`` is unset.
 
 The key itself is never a setting, never an environment variable, never a
 command-line argument, and never a file under the config directory. ADR 0005:
@@ -65,13 +66,15 @@ def secret_for_text_model(settings: Settings) -> str | None:
 
     ``provider == "local"`` does not consult the keyring. Otherwise the lookup
     uses ``keyring_service`` and ``keyring_account`` from the text-model
-    settings. The returned string is the secret: callers must not log it.
+    settings. When ``keyring_account`` is unset the account is the provider
+    name, which is what ``megila keys set <provider>`` stores. The returned
+    string is the secret: callers must not log it.
     """
     text = settings.text_model
-    if text.provider == "local" or text.keyring_account is None:
+    if text.provider == "local":
         return None
     store = SecretStore(service=text.keyring_service)
-    return store.get(text.keyring_account)
+    return store.get(text.keyring_account or text.provider)
 
 
 class SecretStore:
@@ -197,9 +200,7 @@ def _validate_secret(secret: str) -> None:
     if "\x00" in secret:
         raise SecretError("The key contains a character that cannot be stored.")
     if len(secret) > _MAX_SECRET_LENGTH:
-        raise SecretError(
-            f"The key must be at most {_MAX_SECRET_LENGTH} characters."
-        )
+        raise SecretError(f"The key must be at most {_MAX_SECRET_LENGTH} characters.")
 
 
 def _log_backend_once() -> None:
@@ -317,7 +318,9 @@ def _read_index(backend: KeyringBackend, service: str) -> list[str]:
             "The OS keyring is locked. Unlock it and try again."
         ) from None
     except Exception:
-        return []
+        # An unreadable index is an error, not an empty list: set() would
+        # rewrite the index from [] and forget every other provider.
+        raise SecretError("Could not read the stored provider list.") from None
     if not raw:
         return []
     try:

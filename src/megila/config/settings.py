@@ -73,7 +73,8 @@ class TextModelSettings(BaseModel):
     keyring_account: str | None = Field(
         default=None,
         description=(
-            "Conta no chaveiro. É o nome passado a `megila keys set`. Não é o segredo."
+            "Conta no chaveiro, o nome passado a `megila keys set`. Sem valor, "
+            "vale o nome do provedor. Não é o segredo."
         ),
     )
 

@@ -92,16 +92,17 @@ para processar vídeo.
 O que já está na árvore:
 
 - O pacote em `src/megila/` e a CLI Typer, que responde a
-  `megila --version` e guarda chaves com `megila keys`.
+  `megila --version`, `megila doctor` e guarda chaves com `megila keys`.
 - As ferramentas de desenvolvimento: hatchling, ruff, mypy estrito,
   pytest e pre-commit.
 - O site MkDocs, as ADRs 0001 a 0006 e o clipe sintético de teste em
   pt-BR.
 - O Código de Conduta, a política de segurança e o changelog.
 
-A CLI informa a versão e, com `megila keys`, guarda a chave de um
-provedor. Ainda não há subcomandos de pipeline. Os pacotes internos
-marcam a fronteira de cada componente. Não dá para transcrever,
+A CLI informa a versão, confere o ffmpeg, a máquina e o disco com
+`megila doctor` e guarda a chave de um provedor com `megila keys`. Ainda
+não há subcomandos de pipeline. Os pacotes internos marcam a fronteira de
+cada componente. Não dá para transcrever,
 sobrepor, comprimir, resumir nem gerar cortes com esta árvore.
 
 ## Instalação para desenvolvimento
@@ -127,7 +128,9 @@ python -m megila --version
 ```
 
 Os dois comandos encerram com código 0 e escrevem `megila 0.1.0`. O
-guia completo, com pytest, ruff, mypy e pre-commit, está em
+`megila doctor` confere o ffmpeg e a máquina; o guia está em
+[Instalação](docs/instalacao.md). O ambiente completo, com pytest, ruff,
+mypy e pre-commit, está em
 [Ambiente de desenvolvimento](docs/dev/ambiente.md).
 
 ## Documentação
@@ -138,6 +141,8 @@ GitHub Pages estiver ligado à origem GitHub Actions, é
 responde, as páginas estão no repositório:
 
 - [Início](docs/index.md)
+- [Instalação](docs/instalacao.md)
+- [Solução de problemas](docs/troubleshooting.md)
 - [Configuração](docs/configuracao.md)
 - [Segurança](docs/seguranca.md)
 - [Ambiente de desenvolvimento](docs/dev/ambiente.md)

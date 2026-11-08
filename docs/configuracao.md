@@ -81,7 +81,7 @@ mesmo formato. O campo `video_prompt` da chave `aula` é
 | `MEGILA_TEXT_MODEL__MODEL` | `str` | `""` | Identificador do modelo escolhido por quem opera. |
 | `MEGILA_TEXT_MODEL__BASE_URL` | `Union[str, None]` | `None` | URL base compatível com a API OpenAI, sem usuário, senha, query ou fragmento. |
 | `MEGILA_TEXT_MODEL__KEYRING_SERVICE` | `str` | `megila` | Serviço no chaveiro do sistema. O padrão é `megila`. Não é o segredo. |
-| `MEGILA_TEXT_MODEL__KEYRING_ACCOUNT` | `Union[str, None]` | `None` | Conta no chaveiro. É o nome passado a `megila keys set`. Não é o segredo. |
+| `MEGILA_TEXT_MODEL__KEYRING_ACCOUNT` | `Union[str, None]` | `None` | Conta no chaveiro, o nome passado a `megila keys set`. Sem valor, vale o nome do provedor. Não é o segredo. |
 | `MEGILA_PROFILES__DEFAULT__VIDEO_PROMPT` | `str` | `""` | Instruções do plano de overlay. Não é segredo. |
 | `MEGILA_PROFILES__DEFAULT__SUMMARY_PROMPT` | `str` | `""` | Instruções que o resumo deve seguir, e nada além delas. |
 | `MEGILA_PROFILES__DEFAULT__GLOSSARY` | `dict[str, str]` | `{}` | Termo mapeado para a forma preferida. |

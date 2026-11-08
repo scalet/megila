@@ -89,7 +89,8 @@ class SampleSpec:
             raise ValueError("duration_s must be an integer number of seconds")
         if self.duration_s < MIN_DURATION_S or self.duration_s > MAX_DURATION_S:
             raise ValueError(
-                f"duration_s must be between {MIN_DURATION_S} and {MAX_DURATION_S} seconds"
+                "duration_s must be between "
+                f"{MIN_DURATION_S} and {MAX_DURATION_S} seconds"
             )
         if self.width <= 0 or self.height <= 0 or self.width % 2 or self.height % 2:
             raise ValueError("width and height must be positive even integers")
@@ -109,7 +110,14 @@ class SampleSpec:
             raise ValueError("espeak_speed is outside the espeak-ng range 80..450")
         if not 0 <= self.crf <= 51:
             raise ValueError("crf must be between 0 and 51")
-        allowed_presets = {"ultrafast", "superfast", "veryfast", "faster", "fast", "medium"}
+        allowed_presets = {
+            "ultrafast",
+            "superfast",
+            "veryfast",
+            "faster",
+            "fast",
+            "medium",
+        }
         if self.preset not in allowed_presets:
             raise ValueError(f"unsupported x264 preset: {self.preset}")
         if self.text_version < 1:
@@ -238,7 +246,9 @@ def manifest_path_for(media: Path) -> Path:
     return media.with_suffix(".manifest.json")
 
 
-def build_espeak_command(text_path: Path, wav_path: Path, spec: SampleSpec) -> list[str]:
+def build_espeak_command(
+    text_path: Path, wav_path: Path, spec: SampleSpec
+) -> list[str]:
     return [
         "espeak-ng",
         "-v",
@@ -358,7 +368,9 @@ def run_tool(argv: list[str]) -> subprocess.CompletedProcess[str]:
     )
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout or "").strip()
-        raise SampleBuildError(f"{binary} exited with status {completed.returncode}: {detail}")
+        raise SampleBuildError(
+            f"{binary} exited with status {completed.returncode}: {detail}"
+        )
     return completed
 
 
@@ -370,13 +382,55 @@ def tool_version_line(binary: str, *args: str) -> str:
     return text.splitlines()[0].strip()
 
 
+def _string_key_dict(value: object) -> dict[str, object] | None:
+    if not isinstance(value, dict):
+        return None
+    typed: dict[str, object] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            return None
+        typed[key] = item
+    return typed
+
+
 def _optional_int(value: object) -> int | None:
+    """Best-effort int from ffprobe JSON. Booleans stay numeric, as ``int`` did."""
+
     if value is None or value == "N/A":
         return None
-    try:
+    if isinstance(value, bool):
         return int(value)
-    except (TypeError, ValueError):
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _optional_float(value: object) -> float | None:
+    if value is None:
         return None
+    if isinstance(value, bool):
+        return float(value)
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _optional_str(value: object) -> str | None:
+    if isinstance(value, str):
+        return value
+    return None
 
 
 def probe_media(path: Path) -> MediaInfo:
@@ -395,40 +449,46 @@ def probe_media(path: Path) -> MediaInfo:
         ]
     )
     try:
-        payload = json.loads(completed.stdout)
+        payload_raw = json.loads(completed.stdout)
     except json.JSONDecodeError as exc:
         raise SampleBuildError(f"ffprobe returned invalid JSON for {path}") from exc
+    payload = _string_key_dict(payload_raw)
+    if payload is None:
+        raise SampleBuildError(f"ffprobe JSON for {path} is not an object")
 
-    video: dict | None = None
-    audio: dict | None = None
-    for stream in payload.get("streams", []):
-        kind = stream.get("codec_type")
-        if kind == "video" and video is None:
-            video = stream
-        elif kind == "audio" and audio is None:
-            audio = stream
-    video = video or {}
-    audio = audio or {}
+    video: dict[str, object] | None = None
+    audio: dict[str, object] | None = None
+    streams = payload.get("streams", [])
+    if isinstance(streams, list):
+        for stream in streams:
+            parsed = _string_key_dict(stream)
+            if parsed is None:
+                continue
+            kind = parsed.get("codec_type")
+            if kind == "video" and video is None:
+                video = parsed
+            elif kind == "audio" and audio is None:
+                audio = parsed
+    video_info = video or {}
+    audio_info = audio or {}
 
-    channels = _optional_int(audio.get("channels"))
-    if channels is None and audio.get("channel_layout") == "mono":
+    channels = _optional_int(audio_info.get("channels"))
+    if channels is None and audio_info.get("channel_layout") == "mono":
         channels = 1
-    duration_raw = payload.get("format", {}).get("duration")
-    duration_s: float | None
-    try:
-        duration_s = None if duration_raw is None else float(duration_raw)
-    except (TypeError, ValueError):
-        duration_s = None
+    format_info = _string_key_dict(payload.get("format"))
+    duration_raw = None if format_info is None else format_info.get("duration")
+    duration_s = _optional_float(duration_raw)
 
-    frame_rate = video.get("r_frame_rate") or video.get("avg_frame_rate")
+    frame_rate_raw = video_info.get("r_frame_rate") or video_info.get("avg_frame_rate")
+    frame_rate = str(frame_rate_raw) if frame_rate_raw else None
     return MediaInfo(
         duration_s=duration_s,
-        width=_optional_int(video.get("width")),
-        height=_optional_int(video.get("height")),
-        frame_rate=str(frame_rate) if frame_rate else None,
-        video_codec=video.get("codec_name"),
-        audio_codec=audio.get("codec_name"),
-        sample_rate=_optional_int(audio.get("sample_rate")),
+        width=_optional_int(video_info.get("width")),
+        height=_optional_int(video_info.get("height")),
+        frame_rate=frame_rate,
+        video_codec=_optional_str(video_info.get("codec_name")),
+        audio_codec=_optional_str(audio_info.get("codec_name")),
+        sample_rate=_optional_int(audio_info.get("sample_rate")),
         channels=channels,
     )
 
@@ -440,26 +500,39 @@ def media_mismatches(info: MediaInfo, spec: SampleSpec) -> list[str]:
     problems: list[str] = []
     expected_video = "h264" if spec.video_codec == "libx264" else spec.video_codec
     if info.video_codec != expected_video:
-        problems.append(f"video codec is {info.video_codec!r}, expected {expected_video!r}")
+        problems.append(
+            f"video codec is {info.video_codec!r}, expected {expected_video!r}"
+        )
     if info.width != spec.width or info.height != spec.height:
         problems.append(
-            f"resolution is {info.width}x{info.height}, expected {spec.width}x{spec.height}"
+            "resolution is "
+            f"{info.width}x{info.height}, expected {spec.width}x{spec.height}"
         )
     expected_rates = {f"{spec.frame_rate}/1", str(spec.frame_rate)}
     if info.frame_rate not in expected_rates:
-        problems.append(f"frame rate is {info.frame_rate!r}, expected {spec.frame_rate}")
+        problems.append(
+            f"frame rate is {info.frame_rate!r}, expected {spec.frame_rate}"
+        )
     if info.audio_codec != spec.audio_codec:
-        problems.append(f"audio codec is {info.audio_codec!r}, expected {spec.audio_codec!r}")
+        problems.append(
+            f"audio codec is {info.audio_codec!r}, expected {spec.audio_codec!r}"
+        )
     if info.sample_rate != spec.sample_rate:
-        problems.append(f"sample rate is {info.sample_rate!r}, expected {spec.sample_rate}")
+        problems.append(
+            f"sample rate is {info.sample_rate!r}, expected {spec.sample_rate}"
+        )
     if info.channels != spec.channels:
-        problems.append(f"audio channels are {info.channels!r}, expected {spec.channels}")
+        problems.append(
+            f"audio channels are {info.channels!r}, expected {spec.channels}"
+        )
     if info.duration_s is None:
         problems.append("duration is missing")
     else:
         tolerance = 1.5 / spec.frame_rate
         if abs(info.duration_s - spec.duration_s) > tolerance:
-            problems.append(f"duration is {info.duration_s:.3f}s, expected {spec.duration_s}s")
+            problems.append(
+                f"duration is {info.duration_s:.3f}s, expected {spec.duration_s}s"
+            )
     return problems
 
 
@@ -478,16 +551,14 @@ def _input_fingerprint(
     }
 
 
-def _read_manifest(path: Path) -> dict | None:
+def _read_manifest(path: Path) -> dict[str, object] | None:
     if not path.is_file():
         return None
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    if not isinstance(data, dict):
-        return None
-    return data
+    return _string_key_dict(data)
 
 
 def _manifest_matches(path: Path, fingerprint: dict[str, object]) -> bool:
@@ -542,7 +613,11 @@ def generate_sample(
         tool_version_line("ffmpeg", "-version"),
         tool_version_line("espeak-ng", "--version"),
     )
-    if not force and out_path.is_file() and _manifest_matches(manifest_path, fingerprint):
+    if (
+        not force
+        and out_path.is_file()
+        and _manifest_matches(manifest_path, fingerprint)
+    ):
         recorded = (_read_manifest(manifest_path) or {}).get("output_sha256")
         if isinstance(recorded, str) and recorded == sha256_file(out_path):
             return out_path
@@ -634,7 +709,10 @@ def main(argv: list[str] | None = None) -> int:
             path = output_path(cache_dir, DEFAULT_SPEC)
             if not path.is_file():
                 print(f"error: cached clip not found: {path}", file=sys.stderr)
-                print("generate it with: python tests/assets/make_sample.py", file=sys.stderr)
+                print(
+                    "generate it with: python tests/assets/make_sample.py",
+                    file=sys.stderr,
+                )
                 return 1
             mismatches = media_mismatches(probe_media(path), DEFAULT_SPEC)
             if mismatches:
@@ -651,7 +729,13 @@ def main(argv: list[str] | None = None) -> int:
                         print(f"error: {item}", file=sys.stderr)
                     return 1
             digest = sha256_file(path)
-    except (MissingToolsError, SampleBuildError, NarrationError, ValueError, OSError) as exc:
+    except (
+        MissingToolsError,
+        SampleBuildError,
+        NarrationError,
+        ValueError,
+        OSError,
+    ) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

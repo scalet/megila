@@ -193,7 +193,32 @@ def test_text_model_lookup_uses_config_names(
         ),
         encoding="utf-8",
     )
+    # No keyring_account: the account is the provider name, and nothing is
+    # stored under it yet.
     assert secret_for_text_model(load_settings()) is None
+    SecretStore(service="custom-svc").set("openai-compatible", "by-provider")
+    assert secret_for_text_model(load_settings()) == "by-provider"
+
+
+def test_index_read_failure_does_not_rewrite_the_index(
+    memory: MemoryKeyring, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = SecretStore()
+    store.set("openai", "first-value-123")
+    real_get = memory.get_password
+
+    def flaky(service: str, username: str) -> str | None:
+        if username == "megila.index":
+            raise OSError("transient")
+        return real_get(service, username)
+
+    monkeypatch.setattr(memory, "get_password", flaky)
+    with pytest.raises(SecretError):
+        store.set("anthropic", "second-value-456")
+    with pytest.raises(SecretError):
+        store.list_accounts()
+    monkeypatch.setattr(memory, "get_password", real_get)
+    assert store.list_accounts() == ["openai"]
 
 
 def test_rejected_names_and_empty_keys_omit_the_value(memory: MemoryKeyring) -> None:
